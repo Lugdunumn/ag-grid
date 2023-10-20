@@ -1,7 +1,3 @@
-import '@ag-grid-community/styles/ag-grid.css';
-import '@ag-grid-community/styles/ag-theme-alpine.css';
-import '@ag-grid-community/styles/ag-theme-balham.css';
-import '@ag-grid-community/styles/ag-theme-material.css';
 import styled from '@emotion/styled';
 import { Delete, Download } from '@mui/icons-material';
 import { Button, Modal } from '@mui/joy';
