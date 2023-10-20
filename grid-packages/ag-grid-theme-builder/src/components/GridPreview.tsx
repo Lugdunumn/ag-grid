@@ -1,4 +1,4 @@
-import { ColDef, GridApi, GridOptions, createGrid } from '@ag-grid-community/core';
+import { ColDef, GridApi, GridOptions, Grid } from '@ag-grid-community/core';
 import styled from '@emotion/styled';
 import { useCurrentFeature } from 'atoms/currentFeature';
 import { useEnabledFeatures } from 'atoms/enabledFeatures';
@@ -61,7 +61,9 @@ const GridPreview = () => {
       },
     };
 
-    const api = createGrid(el, options);
+    // TODO use createGrid after merging spike branch
+    new Grid(wrapperRef.current, options);
+    const api = options.api!;
     apiRef.current = api;
     setApi(api);
 
