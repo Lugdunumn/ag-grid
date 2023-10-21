@@ -1,5 +1,5 @@
+import { CssRepresentable, isCssRepresentable } from './expressions';
 import { toKebabCase } from './utils';
-import { CssRepresentable, isCssRepresentable } from './values';
 
 export interface NestedRuleSet {
   [selector: string]: NestedBlock | null | undefined;

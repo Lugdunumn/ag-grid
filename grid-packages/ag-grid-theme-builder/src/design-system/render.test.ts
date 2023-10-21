@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
+import { CssRepresentable } from './expressions';
 import { joinSelectors, renderNestedRules } from './render';
-import { CssRepresentable } from './values';
 
 test(`Render a flat rule`, () => {
   expect(

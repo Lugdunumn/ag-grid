@@ -1,3 +1,13 @@
+import {
+  ColorExpression,
+  CssRepresentable,
+  DimensionExpression,
+  Expression,
+  LiteralExpression,
+  StringsExpression,
+} from './expressions';
+import { toKebabCase } from './utils';
+
 type ColorVariable =
   | 'activeColor'
   | 'advancedFilterColumnPillColor'
@@ -61,64 +71,71 @@ type ColorVariable =
   | 'valueChangeDeltaUpColor'
   | 'valueChangeValueHighlightBackgroundColor';
 
+type DimensionVariable =
+  | 'advancedFilterBuilderIndentSize'
+  | 'borderRadius'
+  | 'cardRadius'
+  | 'checkboxBorderRadius'
+  | 'columnSelectIndentSize'
+  | 'filterToolPanelGroupIndent'
+  | 'fontSize'
+  | 'gridSize'
+  | 'headerColumnResizeHandleHeight'
+  | 'headerColumnResizeHandleWidth'
+  | 'headerColumnSeparatorHeight'
+  | 'headerColumnSeparatorWidth'
+  | 'headerHeight'
+  | 'iconSize'
+  | 'internalCalculatedLineHeight'
+  | 'internalPaddedRowHeight'
+  | 'lineHeight'
+  | 'listItemHeight'
+  | 'menuMinWidth'
+  | 'rowGroupIndentSize'
+  | 'rowHeight'
+  | 'selectedTabUnderlineTransitionSpeed'
+  | 'selectedTabUnderlineWidth'
+  | 'setFilterIndentSize'
+  | 'sideBarPanelWidth'
+  | 'tabMinWidth'
+  | 'toggleButtonHeight'
+  | 'toggleButtonWidth'
+  | 'cellHorizontalPadding'
+  | 'cellWidgetSpacing'
+  | 'widgetContainerHorizontalPadding'
+  | 'widgetContainerVerticalPadding'
+  | 'widgetHorizontalSpacing'
+  | 'widgetVerticalSpacing';
 
-  Next up: classify these:
+// type BorderVariable =
+//   | 'borders'
+//   | 'bordersCritical'
+//   | 'bordersInput'
+//   | 'bordersInputInvalid'
+//   | 'bordersSecondary'
+//   | 'bordersSideButton'
+//   | 'cellHorizontalBorder'
+//   | 'rangeSelectionBorderStyle'
+//   | 'rowBorderStyle'
+//   | 'rowBorderWidth'
+//   | 'toggleButtonBorderWidth'
+//   | 'wrapperBorderRadius';
 
-  | "advancedFilterBuilderIndentSize"
-| "borderRadius"
-| "borders"
-| "bordersCritical"
-| "bordersInput"
-| "bordersInputInvalid"
-| "bordersSecondary"
-| "bordersSideButton"
-| "cardRadius"
-| "cardShadow"
-| "cellHorizontalBorder"
-| "cellHorizontalPadding"
-| "cellWidgetSpacing"
-| "checkboxBorderRadius"
-| "columnSelectIndentSize"
-| "filterToolPanelGroupIndent"
-| "fontFamily"
-| "fontSize"
-| "gridSize"
-| "headerColumnResizeHandleDisplay"
-| "headerColumnResizeHandleHeight"
-| "headerColumnResizeHandleWidth"
-| "headerColumnSeparatorDisplay"
-| "headerColumnSeparatorHeight"
-| "headerColumnSeparatorWidth"
-| "headerHeight"
-| "iconFontCode"
-| "iconFontCodeGrip"
-| "iconFontCodeLeft"
-| "iconFontCodeRight"
-| "iconFontFamily"
-| "iconFontWeight"
-| "iconSize"
-| "inputFocusBoxShadow"
-| "internalCalculatedLineHeight"
-| "internalPaddedRowHeight"
-| "lineHeight"
-| "listItemHeight"
-| "menuMinWidth"
-| "popupShadow"
-| "rangeSelectionBorderStyle"
-| "rowBorderStyle"
-| "rowBorderWidth"
-| "rowGroupIndentSize"
-| "rowHeight"
-| "selectedTabUnderlineTransitionSpeed"
-| "selectedTabUnderlineWidth"
-| "setFilterIndentSize"
-| "sideBarPanelWidth"
-| "tabMinWidth"
-| "toggleButtonBorderWidth"
-| "toggleButtonHeight"
-| "toggleButtonWidth"
-| "widgetContainerHorizontalPadding"
-| "widgetContainerVerticalPadding"
-| "widgetHorizontalSpacing"
-| "widgetVerticalSpacing"
-| "wrapperBorderRadius"
+// type DisplayVariable = 'headerColumnSeparatorDisplay' | 'headerColumnResizeHandleDisplay';
+
+type StringsVariable = 'fontFamily' | 'iconFontFamily';
+
+// type ShadowVariable = 'cardShadow' | 'inputFocusBoxShadow' | 'popupShadow';
+
+export type Variables = Record<ColorVariable, Expression<ColorExpression>> &
+  Record<DimensionVariable, Expression<DimensionExpression>> &
+  Record<StringsVariable, Expression<StringsExpression>>;
+
+export const v: Variables = new Proxy({} as Record<string, CssRepresentable>, {
+  get(cache, prop) {
+    prop = String(prop);
+    return (cache[prop] ||= new LiteralExpression(
+      `var(--ag-${String(toKebabCase(String(prop)))})`,
+    ));
+  },
+}) as Variables;
