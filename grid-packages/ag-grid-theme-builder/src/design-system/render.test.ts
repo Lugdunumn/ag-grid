@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest';
-import { joinSelectors, renderNestedRules } from './render';
+import { CssRepresentable, joinSelectors, renderNestedRules } from './render';
 
 test(`Render a flat rule`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: 'red',
-        backgroundColor: 'green',
+        color: val('red'),
+        backgroundColor: val('green'),
       },
     }),
   ).toMatchInlineSnapshot(`
@@ -21,10 +21,13 @@ test(`Render a nested rule`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: 'red',
+        color: val('red'),
         b: {
-          color: 'blue',
-          backgroundColor: 'green',
+          color: val('blue'),
+          backgroundColor: val('green'),
+          c: {
+            color: val('purple'),
+          },
         },
       },
     }),
@@ -35,6 +38,9 @@ test(`Render a nested rule`, () => {
     a b {
     	color: blue;
     	background-color: green;
+    }
+    a b c {
+    	color: purple;
     }"
   `);
 });
@@ -44,7 +50,7 @@ test(`Render a nested rule with & combiner before`, () => {
     renderNestedRules({
       a: {
         '&:hover': {
-          color: 'blue',
+          color: val('blue'),
         },
       },
     }),
@@ -60,7 +66,7 @@ test(`Render a 1-deep nested rule with & combiner after`, () => {
     renderNestedRules({
       a: {
         'b &': {
-          color: 'blue',
+          color: val('blue'),
         },
       },
     }),
@@ -77,7 +83,7 @@ test(`Render a 2-deep nested rule with & combiner after`, () => {
       a: {
         b: {
           'c &': {
-            color: 'blue',
+            color: val('blue'),
           },
         },
       },
@@ -95,7 +101,7 @@ test(`Render a 2-deep nested rule with & combiner in middle`, () => {
       a: {
         b: {
           'c & x': {
-            color: 'blue',
+            color: val('blue'),
           },
         },
       },
@@ -111,17 +117,17 @@ test(`Render nested with intermediate declarations`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: 'red',
+        color: val('red'),
         b: {
-          color: 'green',
+          color: val('green'),
           '&:before': {
-            color: 'blue',
+            color: val('blue'),
           },
         },
         '.rtl &': {
-          color: 'purple',
+          color: val('purple'),
           foo: {
-            color: 'pink',
+            color: val('pink'),
           },
         },
       },
@@ -167,16 +173,71 @@ test(`Render RTL rules`, () => {
   expect(
     renderNestedRules({
       a: {
-        paddingLeading: '1px',
-        borderLeadingWidth: '2px',
-        leading: '3px',
+        paddingLeading: val('1px'),
+        borderLeadingWidth: val('2px'),
+        leading: val('3px'),
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    ".ag-ltr a {
+    	padding-left: 1px;
+    	border-left-width: 2px;
+    	left: 3px;
+    }
+    .ag-rtl a {
+    	padding-right: 1px;
+    	border-right-width: 2px;
+    	right: 3px;
+    }"
+  `);
+});
+
+test(`RTL rules don't apply to property names`, () => {
+  expect(
+    renderNestedRules({
+      leading: {
+        color: val('red'),
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    ".ag-leading {
+    	color: red;
+    }"
+  `);
+});
+
+test(`Render RTL nested`, () => {
+  expect(
+    renderNestedRules({
+      a: {
+        color: val('red'),
+        marginLeading: val('1px'),
+        b: {
+          color: val('green'),
+          leading: val('2px'),
+        },
       },
     }),
   ).toMatchInlineSnapshot(`
     "a {
-    	padding-leading: 1px;
-    	border-leading-width: 2px;
-    	leading: 3px;
+    	color: red;
+    }
+    a b {
+    	color: green;
+    }
+    .ag-ltr a b {
+    	left: 2px;
+    }
+    .ag-rtl a b {
+    	right: 2px;
+    }
+    .ag-ltr a {
+    	margin-left: 1px;
+    }
+    .ag-rtl a {
+    	margin-right: 1px;
     }"
   `);
 });
+
+const val = (s: string): CssRepresentable => ({ toCss: () => s });

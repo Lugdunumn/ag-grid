@@ -1,23 +1,28 @@
-type CssValue = null | undefined | string;
+export interface CssRepresentable {
+  toCss(): string;
+}
 
-interface NestedRuleSet {
-  [selector: string]: NestedBlock;
+const isCssRepresentable = (value: unknown): value is CssRepresentable =>
+  value instanceof Object && 'toCss' in value && typeof value.toCss === 'function';
+
+export interface NestedRuleSet {
+  [selector: string]: NestedBlock | null | undefined;
 }
 
 // Can contain declarations and nested blocks, e.g:
 // {color: red, {'&:hover': {color: blue}}}
-interface NestedBlock {
-  [property: string]: CssValue | NestedBlock;
+export interface NestedBlock {
+  [property: string]: CssRepresentable | null | undefined | NestedBlock;
 }
 
 // Represents a CSSStyleRule e.g. `.a, .b, { color: red; }`
-interface StyleRule {
+export interface StyleRule {
   selectors: string[];
   declarations: Declaration[];
 }
 
 // a rendered CSS declaration, e.g. `padding-right: 4px`
-interface Declaration {
+export interface Declaration {
   property: string;
   value: string;
 }
@@ -42,21 +47,45 @@ export const renderNestedRules = (nestedRules: NestedRuleSet): string => {
 
 // flatten a block that can contain declarations e.g. 'color: red' or nested blocks
 const flattenNestedBlock = (rule: NestedBlock): StyleRule[] => {
-  const declarations: Declaration[] = [];
+  const blockDeclarations: Declaration[] = [];
+  const ltrDeclarations: Declaration[] = [];
   const result: StyleRule[] = [];
-  for (const [key, value] of Object.entries(rule)) {
-    if (value == null) continue;
-    if (typeof value === 'object') {
-      const parentSelectors = parseSelectorsString(key);
-      result.push(...joinParentSelectors(parentSelectors, flattenNestedBlock(value)));
+  for (const [key, valueOrBlock] of Object.entries(rule)) {
+    if (valueOrBlock == null) continue;
+    if (isCssRepresentable(valueOrBlock)) {
+      const property = toKebabCase(key);
+      const value = valueOrBlock.toCss();
+      if (/\b(leading|trailing)\b/.test(property)) {
+        ltrDeclarations.push({
+          property: property.replaceAll('leading', 'left').replaceAll('trailing', 'right'),
+          value,
+        });
+      } else {
+        blockDeclarations.push({ property, value });
+      }
     } else {
-      declarations.push({ property: toKebabCase(key), value });
+      result.push(
+        ...joinParentSelectors(parseSelectorsString(key), flattenNestedBlock(valueOrBlock)),
+      );
     }
   }
-  if (declarations.length > 0) {
+  if (ltrDeclarations.length > 0) {
+    result.push({
+      selectors: ['.ag-ltr &'],
+      declarations: ltrDeclarations,
+    });
+    result.push({
+      selectors: ['.ag-rtl &'],
+      declarations: ltrDeclarations.map(({ property, value }) => ({
+        property: property.replaceAll('left', 'right'),
+        value,
+      })),
+    });
+  }
+  if (blockDeclarations.length > 0) {
     result.unshift({
       selectors: ['&'],
-      declarations,
+      declarations: blockDeclarations,
     });
   }
   return result;
@@ -93,12 +122,13 @@ export const joinSelectors = (a: string, b: string): string => {
   return b.replaceAll('&', a);
 };
 
-const parseSelectorsString = (rawSelector: string): string[] =>
-  rawSelector
+const parseSelectorsString = (input: string) =>
+  input
     .trim()
     .replaceAll(/(?<![\w"'[:-])[a-z]+|\.[a-z]+/gi, mapElementsToClassNames)
     .split(/\s*,\s*/);
 
+// someClass -> .ag-some-class
 const mapElementsToClassNames = (element: string): string => {
   if (knownElements.has(element) || element.length === 1) return element;
   if (element.startsWith('.')) {
