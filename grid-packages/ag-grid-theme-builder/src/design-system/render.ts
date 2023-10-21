@@ -1,9 +1,5 @@
-export interface CssRepresentable {
-  toCss(): string;
-}
-
-const isCssRepresentable = (value: unknown): value is CssRepresentable =>
-  value instanceof Object && 'toCss' in value && typeof value.toCss === 'function';
+import { toKebabCase } from './utils';
+import { CssRepresentable, isCssRepresentable } from './values';
 
 export interface NestedRuleSet {
   [selector: string]: NestedBlock | null | undefined;
@@ -94,14 +90,15 @@ const flattenNestedBlock = (rule: NestedBlock): StyleRule[] => {
 // Combine StyleRules with one or more parent selectors, using a
 // https://en.wikipedia.org/wiki/Cartesian_product
 const joinParentSelectors = (parentSelectors: string[], styleRules: StyleRule[]): StyleRule[] => {
-  return styleRules.flatMap(({ selectors, declarations }) =>
-    parentSelectors.map(
-      (parentSelector): StyleRule => ({
-        selectors: selectors.map((selector) => joinSelectors(parentSelector, selector)),
-        declarations,
-      }),
-    ),
-  );
+  return styleRules.map(({ selectors, declarations }): StyleRule => {
+    const selectorProduct = parentSelectors.flatMap((parentSelector) =>
+      selectors.map((selector) => joinSelectors(parentSelector, selector)),
+    );
+    return {
+      selectors: selectorProduct,
+      declarations,
+    };
+  });
 };
 
 // implement the rules for combining a selector with its parent selector,
@@ -125,7 +122,7 @@ export const joinSelectors = (a: string, b: string): string => {
 const parseSelectorsString = (input: string) =>
   input
     .trim()
-    .replaceAll(/(?<![\w"'[:-])[a-z]+|\.[a-z]+/gi, mapElementsToClassNames)
+    .replaceAll(/((?<![\w"'[:-])[a-z]+|\.[a-z]+)(?![a-z-])/gi, mapElementsToClassNames)
     .split(/\s*,\s*/);
 
 // someClass -> .ag-some-class
@@ -136,9 +133,6 @@ const mapElementsToClassNames = (element: string): string => {
   }
   return '.ag-' + toKebabCase(element);
 };
-
-const toKebabCase = (camelCase: string) =>
-  camelCase.replaceAll(/(?<=[a-z])(?=[A-Z])/g, '-').toLowerCase();
 
 // TODO embed a much smaller set of elements that we actually use
 const knownElements = new Set(

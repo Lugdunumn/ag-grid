@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
-import { CssRepresentable, joinSelectors, renderNestedRules } from './render';
+import { joinSelectors, renderNestedRules } from './render';
+import { CssRepresentable } from './values';
 
 test(`Render a flat rule`, () => {
   expect(
@@ -236,6 +237,30 @@ test(`Render RTL nested`, () => {
     }
     .ag-rtl a {
     	margin-right: 1px;
+    }"
+  `);
+});
+
+test(`Convert camelCase to .ag-kebab-case class names`, () => {
+  expect(
+    renderNestedRules({
+      'one, oneTwo, three:not(fourFive)': {
+        bar: val('converted'),
+      },
+      'ag-grid, ::before, :not(:first-child)': {
+        bar: val('not converted'),
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    ".ag-one,
+    .ag-one-two,
+    .ag-three:not(.ag-four-five) {
+    	bar: converted;
+    }
+    ag-grid,
+    ::before,
+    :not(:first-child) {
+    	bar: not converted;
     }"
   `);
 });
