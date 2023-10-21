@@ -27,7 +27,11 @@ export const renderNestedRules = (nestedRules: NestedRuleSet): string => {
   const result: string[] = [];
   for (const { selectors, declarations } of rules) {
     if (declarations.length === 0 || selectors.length === 0) continue;
-    result.push(selectors.join(',\n'), ' {\n');
+    const selectorsWithoutAmpersands = selectors
+      .join(',\n')
+      .replaceAll(/ & |& | &/g, ' ')
+      .replaceAll('&', '');
+    result.push(selectorsWithoutAmpersands, ' {\n');
     for (const { property, value } of declarations) {
       result.push('\t', property, ': ', value, ';\n');
     }
@@ -43,11 +47,8 @@ const flattenNestedBlock = (rule: NestedBlock): StyleRule[] => {
   for (const [key, value] of Object.entries(rule)) {
     if (value == null) continue;
     if (typeof value === 'object') {
-      const nestedRules = flattenNestedBlock(value);
-      if (nestedRules.length > 0) {
-        const parentSelectors = parseSelectorsString(key);
-        result.push(...joinParentSelectors(parentSelectors, flattenNestedBlock(value)));
-      }
+      const parentSelectors = parseSelectorsString(key);
+      result.push(...joinParentSelectors(parentSelectors, flattenNestedBlock(value)));
     } else {
       declarations.push({ property: toKebabCase(key), value });
     }
@@ -61,6 +62,8 @@ const flattenNestedBlock = (rule: NestedBlock): StyleRule[] => {
   return result;
 };
 
+// Combine StyleRules with one or more parent selectors, using a
+// https://en.wikipedia.org/wiki/Cartesian_product
 const joinParentSelectors = (parentSelectors: string[], styleRules: StyleRule[]): StyleRule[] => {
   return styleRules.flatMap(({ selectors, declarations }) =>
     parentSelectors.map(
@@ -72,14 +75,25 @@ const joinParentSelectors = (parentSelectors: string[], styleRules: StyleRule[])
   );
 };
 
+// implement the rules for combining a selector with its parent selector,
+// in the Sass style e.g. 'x' joined to '&:hover' = 'x:hover'
 export const joinSelectors = (a: string, b: string): string => {
   if (!b.includes('&')) return a + ' ' + b;
-  if (!b.startsWith('&')) b = ' ' + b;
-  if (b.endsWith('&')) b = b + ' ';
+
+  if (!/^(&[^&]*|[^&]* &|[^&]* & [^&]*)$/.test(b)) {
+    throw new Error(
+      `Selectors can contain at most one &, either at the start or separated by spaces ("${b}")`,
+    );
+  }
+
+  if (b.startsWith('&')) return a + b.substring(1);
+
+  if (!a.includes('&')) a = '& ' + a;
+
   return b.replaceAll('&', a);
 };
 
-export const parseSelectorsString = (rawSelector: string): string[] =>
+const parseSelectorsString = (rawSelector: string): string[] =>
   rawSelector
     .trim()
     .replaceAll(/(?<![\w"'[:-])[a-z]+|\.[a-z]+/gi, mapElementsToClassNames)
@@ -88,17 +102,9 @@ export const parseSelectorsString = (rawSelector: string): string[] =>
 const mapElementsToClassNames = (element: string): string => {
   if (knownElements.has(element) || element.length === 1) return element;
   if (element.startsWith('.')) {
-    return mapElementsToClassNames(element.substring(1));
+    element = element.substring(1);
   }
   return '.ag-' + toKebabCase(element);
-};
-
-// https://en.wikipedia.org/wiki/Cartesian_product
-export const cartesianProduct = <T>(input: T[][]): T[][] => {
-  const last = input[input.length - 1];
-  if (!last) return [[]];
-  const rest = input.slice(0, -1);
-  return cartesianProduct(rest).flatMap((c) => last.map((v) => [...c, v]));
 };
 
 const toKebabCase = (camelCase: string) =>
