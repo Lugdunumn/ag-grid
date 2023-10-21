@@ -1,75 +1,82 @@
-type CssValue = null | undefined | string | number;
+type CssValue = null | undefined | string;
 
 interface NestedRuleSet {
-  [selector: string]: NestedDeclarations;
+  [selector: string]: NestedBlock;
 }
 
-interface NestedDeclarations {
-  [property: string]: CssValue | NestedDeclarations;
+// Can contain declarations and nested blocks, e.g:
+// {color: red, {'&:hover': {color: blue}}}
+interface NestedBlock {
+  [property: string]: CssValue | NestedBlock;
 }
 
-interface FlatRule {
+// Represents a CSSStyleRule e.g. `.a, .b, { color: red; }`
+interface StyleRule {
   selectors: string[];
-  declarations: [string, string][];
+  declarations: Declaration[];
 }
 
-export const renderCssRuleSet = (nestedRules: NestedRuleSet): string => {
-  const rules = flattenCssRuleSet(nestedRules);
-  const result: string[] = [];
-  addRules(rules, result);
-  return result.join('').trim();
-};
+// a rendered CSS declaration, e.g. `padding-right: 4px`
+interface Declaration {
+  property: string;
+  value: string;
+}
 
-const addRules = (rules: FlatRule[], result: string[]) => {
+export const renderNestedRules = (nestedRules: NestedRuleSet): string => {
+  const rules = flattenNestedBlock(nestedRules);
+  const result: string[] = [];
   for (const { selectors, declarations } of rules) {
     if (declarations.length === 0 || selectors.length === 0) continue;
     result.push(selectors.join(',\n'), ' {\n');
-    for (const [property, value] of declarations) {
+    for (const { property, value } of declarations) {
       result.push('\t', property, ': ', value, ';\n');
     }
     result.push('}\n');
   }
+  return result.join('').trim();
 };
 
-// Flattens a nested rule set e.g. {someClass: {anotherClass: {color: red}}}
-// flattens to .ag-some-class .ag-another-class { color: red; }
-const flattenCssRuleSet = (input: NestedRuleSet): FlatRule[] => {
-  const result: FlatRule[] = [];
-  for (const [selectorsString, declarations] of Object.entries(input)) {
-    flattenCssRule(selectorsString, declarations, [], result);
+// flatten a block that can contain declarations e.g. 'color: red' or nested blocks
+const flattenNestedBlock = (rule: NestedBlock): StyleRule[] => {
+  const declarations: Declaration[] = [];
+  const result: StyleRule[] = [];
+  for (const [key, value] of Object.entries(rule)) {
+    if (value == null) continue;
+    if (typeof value === 'object') {
+      const nestedRules = flattenNestedBlock(value);
+      if (nestedRules.length > 0) {
+        const parentSelectors = parseSelectorsString(key);
+        result.push(...joinParentSelectors(parentSelectors, flattenNestedBlock(value)));
+      }
+    } else {
+      declarations.push({ property: toKebabCase(key), value });
+    }
+  }
+  if (declarations.length > 0) {
+    result.unshift({
+      selectors: ['&'],
+      declarations,
+    });
   }
   return result;
 };
 
-// flatten a block that can contain declarations e.g. 'color: red' or nested blocks
-const flattenCssRule = (
-  selectorsString: string,
-  rule: NestedDeclarations,
-  ancestorSelectors: string[][],
-  result: FlatRule[],
-) => {
-  const selectors = parseSelectorsString(selectorsString);
-  // if this block has declarations, emit them as a single css style rule block
-  const declarations: [string, string][] = [];
-  for (const [key, value] of Object.entries(rule)) {
-    if (value == null || typeof value === 'object') continue;
-    const renderedValue = typeof value === 'number' ? `${value}px` : value;
-    declarations.push([toKebabCase(key), renderedValue]);
-  }
-  const selectorsPath: string[][] = [...ancestorSelectors, selectors];
-  if (declarations.length > 0) {
-    const propertiesRule: FlatRule = {
-      selectors: cartesianProduct(selectorsPath).map(joinSelectors),
-      declarations,
-    };
-    result.push(propertiesRule);
-  }
+const joinParentSelectors = (parentSelectors: string[], styleRules: StyleRule[]): StyleRule[] => {
+  return styleRules.flatMap(({ selectors, declarations }) =>
+    parentSelectors.map(
+      (parentSelector): StyleRule => ({
+        selectors: selectors.map((selector) => joinSelectors(parentSelector, selector)),
+        declarations,
+      }),
+    ),
+  );
+};
 
-  // recurse into nested blocks
-  for (const [key, value] of Object.entries(rule)) {
-    if (value == null || typeof value !== 'object') continue;
-    flattenCssRule(key, value, selectorsPath, result);
-  }
+export const joinSelectors = (a: string, b: string): string => {
+  if (!b.includes('&')) return a + ' ' + b;
+  if (!b.startsWith('&')) b = ' ' + b;
+  if (b.endsWith('&')) b = b + ' ';
+  return b.replaceAll('&', a);
 };
 
 export const parseSelectorsString = (rawSelector: string): string[] =>
@@ -79,7 +86,7 @@ export const parseSelectorsString = (rawSelector: string): string[] =>
     .split(/\s*,\s*/);
 
 const mapElementsToClassNames = (element: string): string => {
-  if (knownElements.has(element)) return element;
+  if (knownElements.has(element) || element.length === 1) return element;
   if (element.startsWith('.')) {
     return mapElementsToClassNames(element.substring(1));
   }
@@ -93,11 +100,6 @@ export const cartesianProduct = <T>(input: T[][]): T[][] => {
   const rest = input.slice(0, -1);
   return cartesianProduct(rest).flatMap((c) => last.map((v) => [...c, v]));
 };
-
-const joinSelectors = (selectors: string[]) =>
-  selectors
-    .map((selector) => (selector.startsWith('&') ? selector.substring(1) : ' ' + selector))
-    .join('');
 
 const toKebabCase = (camelCase: string) =>
   camelCase.replaceAll(/(?<=[a-z])(?=[A-Z])/g, '-').toLowerCase();
