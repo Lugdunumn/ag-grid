@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { hex, literal, rgb, v } from './dsl';
+import { hex, literal, rgb, v } from './css-in-js';
 
 test(`var proxy`, () => {
   expect(v.iconSize).toEqual(literal('var(--ag-icon-size)'));

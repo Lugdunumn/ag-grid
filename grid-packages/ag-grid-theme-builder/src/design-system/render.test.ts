@@ -1,13 +1,15 @@
 import { expect, test } from 'vitest';
-import { literal } from './dsl';
+import { literal, px } from './css-in-js';
+import { ColorExpression } from './css-in-js/ColorExpression';
 import { joinSelectors, renderNestedRules } from './render';
+
 
 test(`Render a flat rule`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: literal('red'),
-        backgroundColor: literal('green'),
+        color: red,
+        backgroundColor: green,
       },
     }),
   ).toMatchInlineSnapshot(`
@@ -22,12 +24,12 @@ test(`Render a nested rule`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: literal('red'),
+        color: red,
         b: {
-          color: literal('blue'),
-          backgroundColor: literal('green'),
+          color: blue,
+          backgroundColor: green,
           c: {
-            color: literal('purple'),
+            color: purple,
           },
         },
       },
@@ -51,7 +53,7 @@ test(`Render a nested rule with & combiner before`, () => {
     renderNestedRules({
       a: {
         '&:hover': {
-          color: literal('blue'),
+          color: blue,
         },
       },
     }),
@@ -67,7 +69,7 @@ test(`Render a 1-deep nested rule with & combiner after`, () => {
     renderNestedRules({
       a: {
         'b &': {
-          color: literal('blue'),
+          color: blue,
         },
       },
     }),
@@ -84,7 +86,7 @@ test(`Render a 2-deep nested rule with & combiner after`, () => {
       a: {
         b: {
           'c &': {
-            color: literal('blue'),
+            color: blue,
           },
         },
       },
@@ -102,7 +104,7 @@ test(`Render a 2-deep nested rule with & combiner in middle`, () => {
       a: {
         b: {
           'c & x': {
-            color: literal('blue'),
+            color: blue,
           },
         },
       },
@@ -118,17 +120,17 @@ test(`Render nested with intermediate declarations`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: literal('red'),
+        color: red,
         b: {
-          color: literal('green'),
+          color: green,
           '&:before': {
-            color: literal('blue'),
+            color: blue,
           },
         },
         '.rtl &': {
-          color: literal('purple'),
+          color: purple,
           foo: {
-            color: literal('pink'),
+            color: pink,
           },
         },
       },
@@ -174,9 +176,9 @@ test(`Render RTL rules`, () => {
   expect(
     renderNestedRules({
       a: {
-        paddingLeading: literal('1px'),
-        borderLeadingWidth: literal('2px'),
-        leading: literal('3px'),
+        paddingLeading: px(1),
+        borderLeadingWidth: px(2),
+        leading: px(3),
       },
     }),
   ).toMatchInlineSnapshot(`
@@ -197,7 +199,7 @@ test(`RTL rules don't apply to property names`, () => {
   expect(
     renderNestedRules({
       leading: {
-        color: literal('red'),
+        color: red,
       },
     }),
   ).toMatchInlineSnapshot(`
@@ -211,11 +213,11 @@ test(`Render RTL nested`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: literal('red'),
-        marginLeading: literal('1px'),
+        color: red,
+        marginLeading: 1px,
         b: {
-          color: literal('green'),
-          leading: literal('2px'),
+          color: green,
+          leading: px(2),
         },
       },
     }),
@@ -264,3 +266,10 @@ test(`Convert camelCase to .ag-kebab-case class names`, () => {
     }"
   `);
 });
+
+
+const red = literal('red') as unknown as ColorExpression;
+const green = literal('green') as unknown as ColorExpression;
+const blue = literal('blue') as unknown as ColorExpression;
+const purple = literal('purple') as unknown as ColorExpression;
+const pink = literal('pink') as unknown as ColorExpression;

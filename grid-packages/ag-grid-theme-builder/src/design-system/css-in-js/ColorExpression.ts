@@ -1,43 +1,21 @@
 import { clamp } from 'model/utils';
-import { CssRepresentable } from './model';
+import { Expression } from './Expression';
 
-export interface Expression<T> extends CssRepresentable {
-  readonly _type?: T; // need to use T so that typing works, but no value is provided
-}
-
-export class StringsExpression implements Expression<StringsExpression> {
-  constructor(readonly content: string[]) {}
-
-  toCss(): string {
-    return this.content.map((s) => JSON.stringify(s)).join(', ');
-  }
-}
-
-export class DimensionExpression implements Expression<DimensionExpression> {
-  constructor(
-    readonly number: number,
-    readonly units: string,
-  ) {}
-
-  toCss(): string {
-    return this.number + this.units;
-  }
-}
-
-export class ColorExpression implements Expression<ColorExpression> {
+export class ColorExpression extends Expression<ColorExpression> {
   constructor(
     readonly r: number,
     readonly g: number,
     readonly b: number,
     readonly a: number,
   ) {
+    super();
     this.r = clamp(r, 0, 1);
     this.g = clamp(g, 0, 1);
     this.b = clamp(b, 0, 1);
     this.a = clamp(a, 0, 1);
   }
 
-  toCss(): string {
+  expressionCss(): string {
     const r = Math.round(this.r * 255);
     const g = Math.round(this.g * 255);
     const b = Math.round(this.b * 255);
@@ -55,7 +33,8 @@ export class ColorExpression implements Expression<ColorExpression> {
     return new ColorExpression(newR, this.g, this.b, this.a);
   }
 
-  static fromHex(hex: string) {
+  static fromHex<T extends string>(input: HexColorString<T>) {
+    let hex: string = input;
     hex = hex.substring(1);
     if (hex.length === 3) hex += 'f';
     if (hex.length === 4)
@@ -127,20 +106,9 @@ type Hex8<T extends string> = T extends `${Hex4<infer _>}${infer Rest}`
   : never;
 
 // A valid hex color string e.g. #f00 with 3, 4, 6 or 8 digits
-export type HexColorString<T extends string> =
-  // if T is typed `string` then let it pass because we can't validate it
-  string extends T
-    ? string
-    : T extends `#${infer Rest}`
-    ? // else (if T is a string literal) require it's in the right format
-      Rest extends Hex3<Rest> | Hex4<Rest> | Hex6<Rest> | Hex8<Rest>
-      ? T
-      : never
-    : never;
-
-export class LiteralExpression<T> implements Expression<T> {
-  constructor(readonly css: string) {}
-  toCss(): string {
-    return this.css;
-  }
-}
+export type HexColorString<T extends string> = T extends `#${infer Rest}`
+  ? // else (if T is a string literal) require it's in the right format
+    Rest extends Hex3<Rest> | Hex4<Rest> | Hex6<Rest> | Hex8<Rest>
+    ? T
+    : never
+  : never;

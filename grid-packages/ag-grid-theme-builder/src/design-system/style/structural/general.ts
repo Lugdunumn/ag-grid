@@ -1,17 +1,17 @@
-import { block, hidden, important, literal, none, themePart } from 'design-system/dsl';
+import { block, hidden, literal, none, themePart } from 'design-system/css-in-js';
 
 export const generalStructuralStyles = themePart({
   'ag-grid, ag-grid-angular, ag-grid-ng2, ag-grid-polymer, ag-grid-aurelia': {
     display: block,
   },
   hidden: {
-    display: important(none),
+    display: none.important,
   },
   invisible: {
-    visibility: important(hidden),
+    visibility: hidden.important,
   },
   noTransition: {
-    transition: important(none),
+    transition: none.important,
   },
   rootWrapper: {
     border: literal('solid 1px blue'),

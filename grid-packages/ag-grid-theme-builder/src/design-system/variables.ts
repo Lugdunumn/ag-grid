@@ -1,4 +1,7 @@
-import { ColorExpression, DimensionExpression, Expression, StringsExpression } from './expressions';
+import { ColorExpression } from './css-in-js/ColorExpression';
+import { DimensionExpression } from './css-in-js/DimensionExpression';
+import { Expression } from './css-in-js/Expression';
+import { StringsExpression } from './css-in-js/StringsExpression';
 
 type ColorVariable =
   | 'activeColor'

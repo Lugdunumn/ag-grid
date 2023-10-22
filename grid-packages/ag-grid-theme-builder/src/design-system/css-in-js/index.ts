@@ -1,14 +1,10 @@
-import {
-  ColorExpression,
-  DimensionExpression,
-  Expression,
-  HexColorString,
-  LiteralExpression,
-  StringsExpression,
-} from './expressions';
-import { NestedRuleSet } from './model';
-import { proxy, toKebabCase } from './utils';
-import { Variables } from './variables';
+import { proxy, toKebabCase } from '../utils';
+import { Variables } from '../variables';
+import { ColorExpression, HexColorString } from './ColorExpression';
+import { DimensionExpression } from './DimensionExpression';
+import { LiteralExpression } from './LiteralExpression';
+import { RuleSet } from './RuleSet';
+import { StringsExpression } from './StringsExpression';
 
 export const strings = (content: string[]) => new StringsExpression(content);
 
@@ -16,10 +12,7 @@ export const dimension = (number: number, units: string) => new DimensionExpress
 
 export const px = (number: number) => dimension(number, 'px');
 
-export const literal = (css: string) => new LiteralExpression(css);
-
-export const important = <T>(expression: Expression<T>) =>
-  new LiteralExpression<T>(expression.toCss() + '!important');
+export const literal = <T extends string>(css: T) => new LiteralExpression<T>(css);
 
 export const rgb = (r: number, g: number, b: number, a = 1) => new ColorExpression(r, g, b, a);
 
@@ -38,4 +31,4 @@ export const v = proxy(
   (prop) => new LiteralExpression(`var(--ag-${String(toKebabCase(String(prop)))})`),
 ) as Variables;
 
-export const themePart = (part: NestedRuleSet) => part;
+export const themePart = (part: RuleSet) => part;

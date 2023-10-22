@@ -1,13 +1,8 @@
-import { CssRepresentable, Declaration, NestedBlock, NestedRuleSet } from './model';
+import { PropertyValue } from './css-in-js/PropertyValue';
+import { Block, RuleSet } from './css-in-js/RuleSet';
 import { toKebabCase } from './utils';
 
-// A flattened CSS style rule e.g. `.a, .b, { color: red; }`
-interface StyleRule {
-  selectors: string[];
-  declarations: Declaration[];
-}
-
-export const renderNestedRules = (nestedRules: NestedRuleSet): string => {
+export const renderNestedRules = (nestedRules: RuleSet): string => {
   const rules = flattenNestedBlock(nestedRules);
   const result: string[] = [];
   for (const { selectors, declarations } of rules) {
@@ -26,15 +21,15 @@ export const renderNestedRules = (nestedRules: NestedRuleSet): string => {
 };
 
 // flatten a block that can contain declarations e.g. 'color: red' or nested blocks
-const flattenNestedBlock = (rule: NestedBlock): StyleRule[] => {
+const flattenNestedBlock = (rule: Block): StyleRule[] => {
   const blockDeclarations: Declaration[] = [];
   const ltrDeclarations: Declaration[] = [];
   const result: StyleRule[] = [];
   for (const [key, valueOrBlock] of Object.entries(rule)) {
     if (valueOrBlock == null) continue;
-    if (isCssRepresentable(valueOrBlock)) {
+    if (valueOrBlock instanceof PropertyValue) {
       const property = toKebabCase(key);
-      const value = valueOrBlock.toCss();
+      const value = valueOrBlock.valueCss();
       if (/\b(leading|trailing)\b/.test(property)) {
         ltrDeclarations.push({
           property: property.replaceAll('leading', 'left').replaceAll('trailing', 'right'),
@@ -125,5 +120,14 @@ const knownElements = new Set(
   ),
 );
 
-const isCssRepresentable = (value: unknown): value is CssRepresentable =>
-  value instanceof Object && 'toCss' in value && typeof value.toCss === 'function';
+// A flattened CSS style rule e.g. `.a, .b, { color: red; }`
+interface StyleRule {
+  selectors: string[];
+  declarations: Declaration[];
+}
+
+// a rendered CSS declaration, e.g. `padding-right: 4px`
+interface Declaration {
+  property: string;
+  value: string;
+}
