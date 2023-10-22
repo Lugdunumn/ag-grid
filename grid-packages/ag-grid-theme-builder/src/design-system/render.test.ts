@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest';
-import { CssRepresentable } from './expressions';
+import { literal } from './dsl';
 import { joinSelectors, renderNestedRules } from './render';
 
 test(`Render a flat rule`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: val('red'),
-        backgroundColor: val('green'),
+        color: literal('red'),
+        backgroundColor: literal('green'),
       },
     }),
   ).toMatchInlineSnapshot(`
@@ -22,12 +22,12 @@ test(`Render a nested rule`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: val('red'),
+        color: literal('red'),
         b: {
-          color: val('blue'),
-          backgroundColor: val('green'),
+          color: literal('blue'),
+          backgroundColor: literal('green'),
           c: {
-            color: val('purple'),
+            color: literal('purple'),
           },
         },
       },
@@ -51,7 +51,7 @@ test(`Render a nested rule with & combiner before`, () => {
     renderNestedRules({
       a: {
         '&:hover': {
-          color: val('blue'),
+          color: literal('blue'),
         },
       },
     }),
@@ -67,7 +67,7 @@ test(`Render a 1-deep nested rule with & combiner after`, () => {
     renderNestedRules({
       a: {
         'b &': {
-          color: val('blue'),
+          color: literal('blue'),
         },
       },
     }),
@@ -84,7 +84,7 @@ test(`Render a 2-deep nested rule with & combiner after`, () => {
       a: {
         b: {
           'c &': {
-            color: val('blue'),
+            color: literal('blue'),
           },
         },
       },
@@ -102,7 +102,7 @@ test(`Render a 2-deep nested rule with & combiner in middle`, () => {
       a: {
         b: {
           'c & x': {
-            color: val('blue'),
+            color: literal('blue'),
           },
         },
       },
@@ -118,17 +118,17 @@ test(`Render nested with intermediate declarations`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: val('red'),
+        color: literal('red'),
         b: {
-          color: val('green'),
+          color: literal('green'),
           '&:before': {
-            color: val('blue'),
+            color: literal('blue'),
           },
         },
         '.rtl &': {
-          color: val('purple'),
+          color: literal('purple'),
           foo: {
-            color: val('pink'),
+            color: literal('pink'),
           },
         },
       },
@@ -174,9 +174,9 @@ test(`Render RTL rules`, () => {
   expect(
     renderNestedRules({
       a: {
-        paddingLeading: val('1px'),
-        borderLeadingWidth: val('2px'),
-        leading: val('3px'),
+        paddingLeading: literal('1px'),
+        borderLeadingWidth: literal('2px'),
+        leading: literal('3px'),
       },
     }),
   ).toMatchInlineSnapshot(`
@@ -197,7 +197,7 @@ test(`RTL rules don't apply to property names`, () => {
   expect(
     renderNestedRules({
       leading: {
-        color: val('red'),
+        color: literal('red'),
       },
     }),
   ).toMatchInlineSnapshot(`
@@ -211,11 +211,11 @@ test(`Render RTL nested`, () => {
   expect(
     renderNestedRules({
       a: {
-        color: val('red'),
-        marginLeading: val('1px'),
+        color: literal('red'),
+        marginLeading: literal('1px'),
         b: {
-          color: val('green'),
-          leading: val('2px'),
+          color: literal('green'),
+          leading: literal('2px'),
         },
       },
     }),
@@ -245,10 +245,10 @@ test(`Convert camelCase to .ag-kebab-case class names`, () => {
   expect(
     renderNestedRules({
       'one, oneTwo, three:not(fourFive)': {
-        bar: val('converted'),
+        bar: literal('converted'),
       },
       'ag-grid, ::before, :not(:first-child)': {
-        bar: val('not converted'),
+        bar: literal('not converted'),
       },
     }),
   ).toMatchInlineSnapshot(`
@@ -264,5 +264,3 @@ test(`Convert camelCase to .ag-kebab-case class names`, () => {
     }"
   `);
 });
-
-const val = (s: string): CssRepresentable => ({ toCss: () => s });

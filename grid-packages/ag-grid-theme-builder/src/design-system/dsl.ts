@@ -6,7 +6,7 @@ import {
   LiteralExpression,
   StringsExpression,
 } from './expressions';
-import { NestedRuleSet } from './render';
+import { NestedRuleSet } from './model';
 import { proxy, toKebabCase } from './utils';
 import { Variables } from './variables';
 

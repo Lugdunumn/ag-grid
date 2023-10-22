@@ -1,26 +1,10 @@
-import { CssRepresentable, isCssRepresentable } from './expressions';
+import { CssRepresentable, Declaration, NestedBlock, NestedRuleSet } from './model';
 import { toKebabCase } from './utils';
 
-export interface NestedRuleSet {
-  [selector: string]: NestedBlock | null | undefined;
-}
-
-// Can contain declarations and nested blocks, e.g:
-// {color: red, {'&:hover': {color: blue}}}
-export interface NestedBlock {
-  [property: string]: CssRepresentable | null | undefined | NestedBlock;
-}
-
-// Represents a CSSStyleRule e.g. `.a, .b, { color: red; }`
-export interface StyleRule {
+// A flattened CSS style rule e.g. `.a, .b, { color: red; }`
+interface StyleRule {
   selectors: string[];
   declarations: Declaration[];
-}
-
-// a rendered CSS declaration, e.g. `padding-right: 4px`
-export interface Declaration {
-  property: string;
-  value: string;
 }
 
 export const renderNestedRules = (nestedRules: NestedRuleSet): string => {
@@ -140,3 +124,6 @@ const knownElements = new Set(
     ' ',
   ),
 );
+
+const isCssRepresentable = (value: unknown): value is CssRepresentable =>
+  value instanceof Object && 'toCss' in value && typeof value.toCss === 'function';

@@ -1,11 +1,5 @@
 import { clamp } from 'model/utils';
-
-export interface CssRepresentable {
-  toCss(): string;
-}
-
-export const isCssRepresentable = (value: unknown): value is CssRepresentable =>
-  value instanceof Object && 'toCss' in value && typeof value.toCss === 'function';
+import { CssRepresentable } from './model';
 
 export interface Expression<T> extends CssRepresentable {
   readonly _type?: T; // need to use T so that typing works, but no value is provided
