@@ -23,6 +23,8 @@ module.exports = {
     'react/prop-types': 'off',
     'no-console': 'warn',
     '@typescript-eslint/require-await': 'off',
+    // tsc already warns about this
+    '@typescript-eslint/no-unused-vars': 'off',
   },
   settings: {
     react: {

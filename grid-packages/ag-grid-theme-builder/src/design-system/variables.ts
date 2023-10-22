@@ -1,12 +1,4 @@
-import {
-  ColorExpression,
-  CssRepresentable,
-  DimensionExpression,
-  Expression,
-  LiteralExpression,
-  StringsExpression,
-} from './expressions';
-import { toKebabCase } from './utils';
+import { ColorExpression, DimensionExpression, Expression, StringsExpression } from './expressions';
 
 type ColorVariable =
   | 'activeColor'
@@ -130,12 +122,3 @@ type StringsVariable = 'fontFamily' | 'iconFontFamily';
 export type Variables = Record<ColorVariable, Expression<ColorExpression>> &
   Record<DimensionVariable, Expression<DimensionExpression>> &
   Record<StringsVariable, Expression<StringsExpression>>;
-
-export const v: Variables = new Proxy({} as Record<string, CssRepresentable>, {
-  get(cache, prop) {
-    prop = String(prop);
-    return (cache[prop] ||= new LiteralExpression(
-      `var(--ag-${String(toKebabCase(String(prop)))})`,
-    ));
-  },
-}) as Variables;

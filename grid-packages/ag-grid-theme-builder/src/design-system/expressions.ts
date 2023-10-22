@@ -60,7 +60,89 @@ export class ColorExpression implements Expression<ColorExpression> {
     const newR = this.r + this.r * percent * -0.01 * amount;
     return new ColorExpression(newR, this.g, this.b, this.a);
   }
+
+  static fromHex(hex: string) {
+    hex = hex.substring(1);
+    if (hex.length === 3) hex += 'f';
+    if (hex.length === 4)
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+    else if (hex.length === 6) hex += 'ff';
+    const value = parseInt(hex, 16);
+    if (hex.length !== 8 || isNaN(value)) throw new Error(`Invalid hex "${hex}"`);
+    return new ColorExpression(
+      (value >>> 24) % 0x100,
+      (value >>> 16) % 0x100,
+      (value >>> 8) % 0x100,
+      value % 0x100,
+    );
+  }
 }
+
+type Hex1 =
+  | '0'
+  | '1'
+  | '2'
+  | '3'
+  | '4'
+  | '5'
+  | '6'
+  | '7'
+  | '8'
+  | '9'
+  | 'a'
+  | 'A'
+  | 'b'
+  | 'B'
+  | 'c'
+  | 'C'
+  | 'd'
+  | 'D'
+  | 'e'
+  | 'E'
+  | 'f'
+  | 'F';
+
+type Hex2<T extends string> = T extends `${Hex1}${infer Rest}`
+  ? Rest extends Hex1
+    ? T
+    : never
+  : never;
+
+type Hex3<T extends string> = T extends `${Hex1}${infer Rest}`
+  ? Rest extends Hex2<Rest>
+    ? T
+    : never
+  : never;
+
+type Hex4<T extends string> = T extends `${Hex1}${infer Rest}`
+  ? Rest extends Hex3<Rest>
+    ? T
+    : never
+  : never;
+
+type Hex6<T extends string> = T extends `${Hex3<infer _>}${infer Rest}`
+  ? Rest extends Hex3<Rest>
+    ? T
+    : never
+  : never;
+
+type Hex8<T extends string> = T extends `${Hex4<infer _>}${infer Rest}`
+  ? Rest extends Hex4<Rest>
+    ? T
+    : never
+  : never;
+
+// A valid hex color string e.g. #f00 with 3, 4, 6 or 8 digits
+export type HexColorString<T extends string> =
+  // if T is typed `string` then let it pass because we can't validate it
+  string extends T
+    ? string
+    : T extends `#${infer Rest}`
+    ? // else (if T is a string literal) require it's in the right format
+      Rest extends Hex3<Rest> | Hex4<Rest> | Hex6<Rest> | Hex8<Rest>
+      ? T
+      : never
+    : never;
 
 export class LiteralExpression<T> implements Expression<T> {
   constructor(readonly css: string) {}

@@ -11,7 +11,6 @@ export class Scheme {
     this.label = titleCase(name);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   mutateVariables(_values: VariableValues): void {}
 }
 

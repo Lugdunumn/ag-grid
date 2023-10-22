@@ -1,4 +1,4 @@
-import { ColDef, GridApi, GridOptions, Grid } from '@ag-grid-community/core';
+import { ColDef, Grid, GridApi, GridOptions } from '@ag-grid-community/core';
 import styled from '@emotion/styled';
 import { useCurrentFeature } from 'atoms/currentFeature';
 import { useEnabledFeatures } from 'atoms/enabledFeatures';
@@ -6,6 +6,7 @@ import { useParentTheme } from 'atoms/parentTheme';
 import { useThemeClass } from 'atoms/theme';
 import { useVariableValues } from 'atoms/values';
 import { withErrorBoundary } from 'components/ErrorBoundary';
+import { installTheme } from 'design-system';
 import { getColumnDefs, getGroupColumnDefs, getRowData } from 'model/exampleData';
 import { Feature } from 'model/features';
 import { isNotNull } from 'model/utils';
@@ -30,6 +31,10 @@ const GridPreview = () => {
   const apiRef = useRef<GridApi | null>(null);
 
   const featureStateRef = useRef<Record<string, unknown>>({});
+
+  useEffect(() => {
+    installTheme({ className: 'ag-theme-custom' });
+  }, []);
 
   const rebuildKey = variablesRequiringRebuild
     .map((variableName) => values[variableName])
