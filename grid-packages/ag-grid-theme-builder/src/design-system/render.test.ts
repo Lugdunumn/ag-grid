@@ -3,7 +3,6 @@ import { literal, px } from './css-in-js';
 import { ColorExpression } from './css-in-js/ColorExpression';
 import { joinSelectors, renderNestedRules } from './render';
 
-
 test(`Render a flat rule`, () => {
   expect(
     renderNestedRules({
@@ -214,7 +213,7 @@ test(`Render RTL nested`, () => {
     renderNestedRules({
       a: {
         color: red,
-        marginLeading: 1px,
+        marginLeading: px(1),
         b: {
           color: green,
           leading: px(2),
@@ -266,7 +265,6 @@ test(`Convert camelCase to .ag-kebab-case class names`, () => {
     }"
   `);
 });
-
 
 const red = literal('red') as unknown as ColorExpression;
 const green = literal('green') as unknown as ColorExpression;
