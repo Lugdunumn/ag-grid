@@ -36,6 +36,7 @@ test('resolve calc', () => {
 test('resolve var', () => {
   // simple
   expect(resolve(v.iconSize, { iconSize: px(5) })).toEqual(px(5));
+  expect(resolve(v.foregroundColor, { foregroundColor: rgb(0, 0, 0) })).toEqual(rgb(0, 0, 0));
 
   // targeting another var
   expect(resolve(v.iconSize, { iconSize: v.gridSize, gridSize: px(10) })).toEqual(px(10));
@@ -43,5 +44,15 @@ test('resolve var', () => {
   // targeting calc
   expect(resolve(v.iconSize, { iconSize: calc(v.gridSize, '*', 2), gridSize: px(10) })).toEqual(
     px(20),
+  );
+
+  // errors
+  expect(() => resolve(v.iconSize, { iconSize: v.iconSize })).toThrowErrorMatchingInlineSnapshot(
+    '"Infinite recursion detected while evaluating var(--ag-icon-size) -> var(--ag-icon-size)"',
+  );
+  expect(() =>
+    resolve(v.iconSize, { iconSize: v.gridSize, gridSize: v.iconSize }),
+  ).toThrowErrorMatchingInlineSnapshot(
+    '"Infinite recursion detected while evaluating var(--ag-icon-size) -> var(--ag-grid-size) -> var(--ag-icon-size)"',
   );
 });

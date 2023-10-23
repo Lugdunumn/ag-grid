@@ -9,24 +9,38 @@ import MathExpressions from 'math-expression-evaluator';
 import { VariableValues } from 'model/resolve';
 
 export const resolve = (expr: Expression, values: VariableValues) => {
+  return doResolve(expr, values, []);
+};
+
+const doResolve = (expr: Expression, values: VariableValues, stack: Expression[]) => {
+  if (stack.length >= 100) {
+    const cssStack = stack.map((e) => e.expressionCss());
+    const recursionIndex = cssStack.indexOf(cssStack[0], 1);
+    const path = cssStack.slice(0, recursionIndex == -1 ? 10 : recursionIndex + 1).join(' -> ');
+    throw new Error(`Infinite recursion detected while evaluating ${path}`);
+  }
   if (expr instanceof CalcExpression) {
-    return resolveCalc(expr, values);
+    return resolveCalc(expr, values, [...stack, expr]);
   } else if (expr instanceof VarExpression) {
-    return resolveVar(expr, values);
+    return resolveVar(expr, values, [...stack, expr]);
   }
   return expr;
 };
 
 const mathExpressions = new MathExpressions();
 
-const resolveCalc = (calc: CalcExpression, values: VariableValues): DimensionExpression => {
+const resolveCalc = (
+  calc: CalcExpression,
+  values: VariableValues,
+  stack: Expression[],
+): DimensionExpression => {
   let units = '';
   const expression = calc.parts
     .map((part): number | string => {
       if (typeof part === 'number' || typeof part === 'string') {
         return part;
       }
-      const resolved = resolve(part, values);
+      const resolved = doResolve(part, values, stack);
       if (!(resolved instanceof DimensionExpression)) {
         throw new Error(
           `Expected ${part.expressionCss()} to resolve to a dimension, but got ${
@@ -51,7 +65,11 @@ const resolveCalc = (calc: CalcExpression, values: VariableValues): DimensionExp
   }
 };
 
-const resolveVar = ({ propertyName }: VarExpression, values: VariableValues): Expression | null => {
+const resolveVar = (
+  { propertyName }: VarExpression,
+  values: VariableValues,
+  stack: Expression[],
+): Expression | null => {
   const value = values[propertyName] || null;
-  return value != null ? resolve(value, values) : null;
+  return value != null ? doResolve(value, values, stack) : null;
 };
