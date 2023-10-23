@@ -1,8 +1,8 @@
-import { PropertyValue } from './css-in-js/PropertyValue';
-import { Block, RuleSet } from './css-in-js/RuleSet';
+import { PropertyValue } from './PropertyValue';
+import { Block, RuleSet } from './RuleSet';
 import { toKebabCase } from './utils';
 
-export const renderNestedRules = (nestedRules: RuleSet): string => {
+export const renderRuleSet = (nestedRules: RuleSet): string => {
   const rules = flattenNestedBlock(nestedRules);
   const result: string[] = [];
   for (const { selectors, declarations } of rules) {

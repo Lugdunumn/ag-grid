@@ -1,11 +1,11 @@
 import { expect, test } from 'vitest';
-import { literal, px } from './css-in-js';
-import { ColorExpression } from './css-in-js/ColorExpression';
-import { joinSelectors, renderNestedRules } from './render';
+import { literal, px } from '.';
+import { ColorExpression } from './ColorExpression';
+import { joinSelectors, renderRuleSet } from './render';
 
 test(`Render a flat rule`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       a: {
         color: red,
         backgroundColor: green,
@@ -21,7 +21,7 @@ test(`Render a flat rule`, () => {
 
 test(`Render a nested rule`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       a: {
         color: red,
         b: {
@@ -49,7 +49,7 @@ test(`Render a nested rule`, () => {
 
 test(`Render a nested rule with & combiner before`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       a: {
         '&:hover': {
           color: blue,
@@ -65,7 +65,7 @@ test(`Render a nested rule with & combiner before`, () => {
 
 test(`Render a 1-deep nested rule with & combiner after`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       a: {
         'b &': {
           color: blue,
@@ -81,7 +81,7 @@ test(`Render a 1-deep nested rule with & combiner after`, () => {
 
 test(`Render a 2-deep nested rule with & combiner after`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       a: {
         b: {
           'c &': {
@@ -99,7 +99,7 @@ test(`Render a 2-deep nested rule with & combiner after`, () => {
 
 test(`Render a 2-deep nested rule with & combiner in middle`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       a: {
         b: {
           'c & x': {
@@ -117,7 +117,7 @@ test(`Render a 2-deep nested rule with & combiner in middle`, () => {
 
 test(`Render nested with intermediate declarations`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       a: {
         color: red,
         b: {
@@ -173,7 +173,7 @@ test(joinSelectors, () => {
 
 test(`Render RTL rules`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       a: {
         paddingLeading: px(1),
         borderLeadingWidth: px(2),
@@ -196,7 +196,7 @@ test(`Render RTL rules`, () => {
 
 test(`RTL rules don't apply to property names`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       leading: {
         color: red,
       },
@@ -210,7 +210,7 @@ test(`RTL rules don't apply to property names`, () => {
 
 test(`Render RTL nested`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       a: {
         color: red,
         marginLeading: px(1),
@@ -244,7 +244,7 @@ test(`Render RTL nested`, () => {
 
 test(`Convert camelCase to .ag-kebab-case class names`, () => {
   expect(
-    renderNestedRules({
+    renderRuleSet({
       'one, oneTwo, three:not(fourFive)': {
         bar: literal('converted'),
       },

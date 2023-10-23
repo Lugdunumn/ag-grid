@@ -1,10 +1,11 @@
-import { proxy, toKebabCase } from '../utils';
-import { Variables } from '../variables';
 import { ColorExpression, HexColorString } from './ColorExpression';
 import { DimensionExpression } from './DimensionExpression';
+import { Expression } from './Expression';
 import { LiteralExpression } from './LiteralExpression';
 import { RuleSet } from './RuleSet';
 import { StringsExpression } from './StringsExpression';
+import { VariableName } from './VariableName';
+import { proxy, toKebabCase } from './utils';
 
 export const strings = (content: string[]) => new StringsExpression(content);
 
@@ -29,6 +30,9 @@ export const visible = literal('visible');
 
 export const v = proxy(
   (prop) => new LiteralExpression(`var(--ag-${String(toKebabCase(String(prop)))})`),
-) as Variables;
+) as Record<VariableName, Expression>;
 
 export const themePart = (part: RuleSet) => part;
+
+export { inject } from './inject';
+export { renderRuleSet as renderThemePart } from './render';

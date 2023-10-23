@@ -1,5 +1,3 @@
-import { Expression } from './css-in-js/Expression';
-
 type ColorVariable =
   | 'activeColor'
   | 'advancedFilterColumnPillColor'
@@ -119,12 +117,10 @@ type StringsVariable = 'fontFamily' | 'iconFontFamily';
 
 type ShadowVariable = 'cardShadow' | 'inputFocusBoxShadow' | 'popupShadow';
 
-export type Variable =
+export type VariableName =
   | ColorVariable
   | DimensionVariable
   | BorderVariable
   | DisplayVariable
   | StringsVariable
   | ShadowVariable;
-
-export type Variables = Record<Variable, Expression>;

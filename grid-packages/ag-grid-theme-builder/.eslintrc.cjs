@@ -25,6 +25,12 @@ module.exports = {
     '@typescript-eslint/require-await': 'off',
     // tsc already warns about this
     '@typescript-eslint/no-unused-vars': 'off',
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: ['*/css-in-js/*'],
+      },
+    ],
   },
   settings: {
     react: {
