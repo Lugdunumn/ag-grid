@@ -1,4 +1,4 @@
-import { inject, renderThemePart } from './css-in-js';
+import { inject, renderRules } from './css-in-js';
 import { generalStructuralStyles } from './style/structural/general';
 
 type Theme = {
@@ -12,6 +12,6 @@ export const installTheme = (theme: Theme) => {
   inject({
     id: 'structural',
     replace: true,
-    generate: () => renderThemePart(generalStructuralStyles),
+    generate: () => renderRules(generalStructuralStyles),
   });
 };

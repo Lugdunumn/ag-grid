@@ -1,8 +1,7 @@
-import { PropertyValue } from './PropertyValue';
-import { Block, RuleSet } from './RuleSet';
+import { Block, PropertyValue, Rules } from './rules';
 import { toKebabCase } from './utils';
 
-export const renderRuleSet = (nestedRules: RuleSet): string => {
+export const renderRules = (nestedRules: Rules): string => {
   const rules = flattenNestedBlock(nestedRules);
   const result: string[] = [];
   for (const { selectors, declarations } of rules) {

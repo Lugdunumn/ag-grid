@@ -1,5 +1,7 @@
 import { Expression } from './Expression';
 
+export const strings = (content: string[]) => new StringsExpression(content);
+
 export class StringsExpression extends Expression {
   constructor(readonly content: string[]) {
     super();

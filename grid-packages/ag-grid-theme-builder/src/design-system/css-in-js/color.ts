@@ -1,6 +1,10 @@
 import { clamp } from 'model/utils';
 import { Expression } from './Expression';
 
+export const rgb = (r: number, g: number, b: number, a = 1) => new ColorExpression(r, g, b, a);
+
+export const hex = <T extends string>(value: HexColorString<T>) => ColorExpression.fromHex(value);
+
 export class ColorExpression extends Expression {
   constructor(
     readonly r: number,

@@ -1,6 +1,6 @@
-import { block, hidden, literal, none, themePart } from 'design-system/css-in-js';
+import { block, hidden, literal, none, rules } from 'design-system/css-in-js';
 
-export const generalStructuralStyles = themePart({
+export const generalStructuralStyles = rules({
   'ag-grid, ag-grid-angular, ag-grid-ng2, ag-grid-polymer, ag-grid-aurelia': {
     display: block,
   },

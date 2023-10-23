@@ -1,10 +1,15 @@
-import { PropertyValue } from './PropertyValue';
-
 // A map of class names to style blocks
-export type RuleSet = Record<string, Block>;
+export type Rules = Record<string, Block>;
 
 // A block that can contain both style declarations and nested blocks, e.g:
 // {color: red, {'&:hover': {color: blue}}}
 export type Block = {
   [key: string]: PropertyValue | Block | null | undefined;
 };
+
+// The right-hand side of a CSS `property-name: value` pair
+export abstract class PropertyValue {
+  abstract valueCss(): string;
+}
+
+export const rules = (part: Rules) => part;
