@@ -1,6 +1,5 @@
 import '@fontsource/inter';
 import { CssBaseline, CssVarsProvider, extendTheme } from '@mui/joy';
-import { parentThemeClassAtom } from 'atoms/parentTheme';
 import { initStore } from 'atoms/store';
 import { App, ThemeBuilderAppProps } from 'components/App';
 import { Provider } from 'jotai';
@@ -19,10 +18,9 @@ const theme = extendTheme({
 
 export const ThemeBuilder = (props: ThemeBuilderAppProps) => {
   const store = useMemo(initStore, []);
-  const initialDark = store.get(parentThemeClassAtom).includes('-dark');
   return (
     <Provider store={store}>
-      <CssVarsProvider theme={theme} defaultMode={initialDark ? 'dark' : 'light'}>
+      <CssVarsProvider theme={theme}>
         <CssBaseline />
         <App {...props} />
       </CssVarsProvider>

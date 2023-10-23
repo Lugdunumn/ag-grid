@@ -1,6 +1,5 @@
-import { DimensionExpression } from '.';
+import { DimensionExpression, VarExpression } from '.';
 import { Expression } from './Expression';
-import { VarExpression } from './v';
 
 export const calc = (...parts: ReadonlyArray<CalcPart>) => new CalcExpression(parts);
 
@@ -19,7 +18,7 @@ export class CalcExpression extends Expression {
     super();
   }
 
-  expressionCss(nested: boolean): string {
+  calcCss(nested: boolean): string {
     return (
       (nested ? '(' : 'calc(') +
       this.parts
@@ -30,11 +29,15 @@ export class CalcExpression extends Expression {
             case 'number':
               return String(part);
             case 'object':
-              return part.expressionCss(true);
+              return part instanceof CalcExpression ? part.calcCss(true) : part.expressionCss();
           }
         })
         .join(' ') +
       ')'
     );
+  }
+
+  expressionCss(): string {
+    return this.calcCss(false);
   }
 }

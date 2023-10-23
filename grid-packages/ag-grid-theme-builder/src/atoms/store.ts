@@ -2,49 +2,31 @@ import { Atom, WritableAtom, createStore } from 'jotai';
 import { Feature, getFeatureOrThrow } from 'model/features';
 import { getSchemeOrThrow } from 'model/schemes';
 import { SchemeOption } from 'model/schemes/Scheme';
-import { Theme, alpineDarkTheme, alpineTheme, getThemeOrThrow } from 'model/themes';
 import { logErrorMessage, mapPresentObjectValues } from 'model/utils';
-import { Value, parseCssString } from 'model/values';
-import { getVariableInfoOrThrow } from 'model/variableInfo';
 import { throttle } from 'throttle-debounce';
 import { enabledFeaturesAtom } from './enabledFeatures';
-import { parentThemeAtom } from './parentTheme';
 import { schemeValueAtomsBySchemeName, schemeValuesAtom } from './schemes';
 import { themeLabelAtom } from './theme';
-import { valueAtomsByVariableName, valuesAtom } from './values';
+import { valuesAtom } from './values';
 
 export const initStore = () => {
-  const defaultTheme =
-    typeof window === 'object' &&
-    getComputedStyle(window.document.documentElement).getPropertyValue('color-scheme') === 'dark'
-      ? alpineDarkTheme
-      : alpineTheme;
-
   const store = createStore();
   restoreValue('themeLabel', deserializeString, store, themeLabelAtom);
-  restoreValue('parentTheme', deserializeTheme, store, parentThemeAtom, defaultTheme);
   restoreValue('enabledFeatures', deserializeEnabledFeatures, store, enabledFeaturesAtom);
-  restoreMap('values', deserializeValue, store, valueAtomsByVariableName);
+  // restoreMap('values', deserializeValue, store, valueAtomsByVariableName);
   restoreMap('schemeValues', deserializeSchemeValue, store, schemeValueAtomsBySchemeName);
 
   const saveState = throttle(
     100,
     () => {
       persistValue('themeLabel', serializeString, store, themeLabelAtom);
-      persistValue('parentTheme', serializeTheme, store, parentThemeAtom);
       persistValue('enabledFeatures', serializeEnabledFeatures, store, enabledFeaturesAtom);
-      persistMap('values', serializeValue, store, valueAtomsByVariableName);
+      // persistMap('values', serializeValue, store, valueAtomsByVariableName);
       persistMap('schemeValues', serializeSchemeValue, store, schemeValueAtomsBySchemeName);
     },
     { noLeading: true },
   );
-  for (const atom of [
-    themeLabelAtom,
-    parentThemeAtom,
-    enabledFeaturesAtom,
-    valuesAtom,
-    schemeValuesAtom,
-  ]) {
+  for (const atom of [themeLabelAtom, enabledFeaturesAtom, valuesAtom, schemeValuesAtom]) {
     store.sub(atom, saveState);
   }
 
@@ -151,15 +133,6 @@ const restoreMap = <T>(
 
 const storageKey = (key: string) => `theme-builder.theme-state.${key}`;
 
-const serializeTheme = (theme: Theme) => theme.class;
-
-const deserializeTheme = (themeClass: unknown) => {
-  if (typeof themeClass !== 'string') {
-    throw new Error('expected string');
-  }
-  return getThemeOrThrow(themeClass);
-};
-
 const serializeString = (value: string) => value;
 
 const deserializeString = (value: unknown) => {
@@ -192,16 +165,16 @@ const deserializeEnabledFeatures = (featureNames: unknown): ReadonlyArray<Featur
   return featureNames.map(getFeatureOrThrow);
 };
 
-const serializeValue = (value: Value | null) => value?.toCss();
+// const serializeValue = (value: Value | null) => value?.toCss();
 
-const deserializeValue = (variableName: string, serializedValue: unknown): Value => {
-  if (typeof serializedValue !== 'string') {
-    throw new Error(`Expected string value for ${variableName} key`);
-  }
-  const info = getVariableInfoOrThrow(variableName);
-  const value = parseCssString(info, serializedValue);
-  if (value == null) {
-    throw new Error(`Failed to parse CSS ${info.type} value ${JSON.stringify(serializedValue)}`);
-  }
-  return value;
-};
+// const deserializeValue = (variableName: string, serializedValue: unknown): Value => {
+//   if (typeof serializedValue !== 'string') {
+//     throw new Error(`Expected string value for ${variableName} key`);
+//   }
+//   const info = getVariableInfoOrThrow(variableName);
+//   const value = parseCssString(info, serializedValue);
+//   if (value == null) {
+//     throw new Error(`Failed to parse CSS ${info.type} value ${JSON.stringify(serializedValue)}`);
+//   }
+//   return value;
+// };

@@ -1,7 +1,4 @@
 import { atom, useAtom, useAtomValue } from 'jotai';
-import { alpineTheme } from 'model/themes';
-
-export const parentThemeClassAtom = atom(alpineTheme.class);
 
 export const themeLabelAtom = atom('Custom Theme');
 export const useThemeLabelAtom = () => useAtom(themeLabelAtom);

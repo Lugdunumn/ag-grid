@@ -3,6 +3,12 @@ import { literal } from './literal';
 export const block = literal('block');
 export const none = literal('none');
 export const flex = literal('flex');
+export const inlineBlock = literal('inline-block');
+
+export const solid = literal('solid');
+export const dotted = literal('dotted');
+export const dashed = literal('dashed');
+
 export const hidden = literal('hidden');
 export const visible = literal('visible');
 

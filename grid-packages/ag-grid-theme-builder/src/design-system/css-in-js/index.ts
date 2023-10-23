@@ -1,3 +1,4 @@
+export { Expression } from './Expression';
 export { CalcExpression, calc } from './calc';
 export { ColorExpression, hex, rgb } from './color';
 export { DimensionExpression, dimension, px } from './dimension';

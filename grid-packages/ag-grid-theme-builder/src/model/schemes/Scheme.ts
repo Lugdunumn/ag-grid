@@ -1,5 +1,5 @@
+import { VariableValues } from 'model/resolve';
 import { titleCase } from 'model/utils';
-import { VariableValues } from 'model/values';
 
 export class Scheme {
   readonly label: string;

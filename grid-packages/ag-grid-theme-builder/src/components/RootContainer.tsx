@@ -1,76 +1,56 @@
 import styled from '@emotion/styled';
 import { Delete, Download } from '@mui/icons-material';
 import { Button, Modal } from '@mui/joy';
-import { useParentTheme } from 'atoms/parentTheme';
 import { useRenderedCss } from 'atoms/renderedCss';
 import { useThemeClass } from 'atoms/theme';
-import { useResetVariableDefaults } from 'atoms/variableDefaults';
 import { Inspector } from 'components/inspector/Inspector';
-import { memo, useLayoutEffect, useState } from 'react';
+import { memo, useState } from 'react';
 import { Tooltip } from 'react-tooltip';
 import { DownloadDialog } from './DownloadDialog';
 import { GridPreview } from './GridPreview';
-import { ParentThemeMenu } from './ParentThemeMenu';
 
 export const RootContainer = memo(() => {
-  const parentTheme = useParentTheme();
   const themeClass = useThemeClass();
   const renderedCss = useRenderedCss();
-  const resetVariableDefaults = useResetVariableDefaults();
-  const [hasRenderedStyles, setHasRenderedStyles] = useState(false);
   const [showDownload, setShowDownload] = useState(false);
-
-  useLayoutEffect(() => {
-    setHasRenderedStyles(true);
-    resetVariableDefaults();
-  }, [renderedCss, resetVariableDefaults]);
 
   return (
     <>
       <style>{renderedCss}</style>
-      <DefaultsElement
-        className={`${parentTheme.class} ${themeClass}`}
-        id="theme-builder-defaults-computation"
-      />
+      <DefaultsElement className={themeClass} id="theme-builder-defaults-computation" />
       <Container>
-        {hasRenderedStyles && (
-          <>
-            <TopRow>
-              <ParentThemeMenu />
-              <Button
-                startDecorator={<Delete />}
-                onClick={() => {
-                  if (confirm('Discard all of your theme customisations?')) {
-                    localStorage.clear();
-                    location.reload();
-                  }
-                }}
-              >
-                Discard changes
-              </Button>
-              <Button startDecorator={<Download />} onClick={() => setShowDownload(true)}>
-                Download Theme
-              </Button>
-            </TopRow>
-            <Columns>
-              <LeftColumn>
-                <Inspector />
-              </LeftColumn>
-              <RightColumn>
-                <GridPreview />
-              </RightColumn>
-            </Columns>
-            <Tooltip
-              id="theme-builder-tooltip"
-              className="tooltip"
-              place="top"
-              anchorSelect="[data-tooltip-content]"
-            />
-          </>
-        )}
+        <TopRow>
+          <Button
+            startDecorator={<Delete />}
+            onClick={() => {
+              if (confirm('Discard all of your theme customisations?')) {
+                localStorage.clear();
+                location.reload();
+              }
+            }}
+          >
+            Discard changes
+          </Button>
+          <Button startDecorator={<Download />} onClick={() => setShowDownload(true)}>
+            Download Theme
+          </Button>
+        </TopRow>
+        <Columns>
+          <LeftColumn>
+            <Inspector />
+          </LeftColumn>
+          <RightColumn>
+            <GridPreview />
+          </RightColumn>
+        </Columns>
+        <Tooltip
+          id="theme-builder-tooltip"
+          className="tooltip"
+          place="top"
+          anchorSelect="[data-tooltip-content]"
+        />
       </Container>
       <Modal open={showDownload} onClose={() => setShowDownload(false)}>
-        {/* <div>Hi!</div> */}
         <>
           <DownloadDialog />
         </>

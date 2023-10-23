@@ -1,6 +1,4 @@
-import { VariableValues } from 'model/values';
-import { Color } from 'model/values/Color';
-import { Dimension } from 'model/values/Dimension';
+import { VariableValues } from 'model/resolve';
 import { Scheme } from './Scheme';
 
 class ColorTemperatureScheme extends Scheme {
@@ -11,7 +9,7 @@ class ColorTemperatureScheme extends Scheme {
         label: 'Very Warm',
         description: '',
         variables: {
-          '--color-temperature-adjust': new Dimension(-20, '%'),
+          // '--color-temperature-adjust': new Dimension(-20, '%'),
         },
       },
       {
@@ -19,7 +17,7 @@ class ColorTemperatureScheme extends Scheme {
         label: 'Warm',
         description: '',
         variables: {
-          '--color-temperature-adjust': new Dimension(-10, '%'),
+          // '--color-temperature-adjust': new Dimension(-10, '%'),
         },
       },
       {
@@ -33,7 +31,7 @@ class ColorTemperatureScheme extends Scheme {
         label: 'Cold',
         description: '',
         variables: {
-          '--color-temperature-adjust': new Dimension(10, '%'),
+          // '--color-temperature-adjust': new Dimension(10, '%'),
         },
       },
       {
@@ -41,23 +39,23 @@ class ColorTemperatureScheme extends Scheme {
         label: 'Very Cold',
         description: '',
         variables: {
-          '--color-temperature-adjust': new Dimension(20, '%'),
+          // '--color-temperature-adjust': new Dimension(20, '%'),
         },
       },
     ]);
   }
 
-  mutateVariables(values: VariableValues): void {
-    const adjust = values['--color-temperature-adjust'];
-    if (adjust instanceof Dimension) {
-      const temperature = adjust.number;
-      for (const variableName in values) {
-        const value = values[variableName];
-        if (value instanceof Color) {
-          values[variableName] = value.withTemperature(temperature);
-        }
-      }
-    }
+  mutateVariables(_: VariableValues): void {
+    // const adjust = values['--color-temperature-adjust'];
+    // if (adjust instanceof Dimension) {
+    //   const temperature = adjust.number;
+    //   for (const variableName in values) {
+    //     const value = values[variableName];
+    //     if (value instanceof Color) {
+    //       values[variableName] = value.withTemperature(temperature);
+    //     }
+    //   }
+    // }
   }
 }
 

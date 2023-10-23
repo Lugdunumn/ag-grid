@@ -1,24 +1,7 @@
-import { getSchemeOrThrow } from './schemes';
+import { VariableValues } from './resolve';
 import { SchemeOption } from './schemes/Scheme';
-import { Theme, alpineTheme } from './themes';
-import { mapPresentObjectValues } from './utils';
-import { VariableValues } from './values';
-
-export const renderCss = ({ values, className }: { values: VariableValues; className: string }) => {
-  const properties = mapPresentObjectValues(values, (value) => value.toCss());
-  let css = `.${className} {\n`;
-
-  for (const [key, value] of Object.entries(properties)) {
-    if (key && value) {
-      css += `    ${key}: ${value};\n`;
-    }
-  }
-  css += '}';
-  return css;
-};
 
 export const renderSchemeCss = ({
-  variableValues,
   schemeValues,
   className,
 }: {
@@ -31,37 +14,17 @@ export const renderSchemeCss = ({
     Object.assign(values, option?.variables);
   }
 
-  for (const variableName in values) {
-    if (variableValues[variableName]) {
-      values[variableName] = variableValues[variableName];
-    }
-  }
-
-  for (const schemeName of Object.keys(schemeValues)) {
-    const scheme = getSchemeOrThrow(schemeName);
-    scheme.mutateVariables(values);
-  }
-
   return addCssDocs({
-    parentTheme: alpineTheme,
     themeClass: className,
-    content: renderCss({ values, className }),
+    // TODO use design system to render
+    content: '',
   });
 };
 
-export const addCssDocs = ({
-  parentTheme,
-  themeClass,
-  content,
-}: {
-  parentTheme: Theme;
-  themeClass: string;
-  content: string;
-}) => `/*
+export const addCssDocs = ({ themeClass, content }: { themeClass: string; content: string }) => `/*
  * To use your new theme, copy this CSS into your application stylesheets and add
- * the class "${themeClass}" to the div containing the grid, *in addition to* the
- * ${parentTheme.label} class:
- * <div id="myGrid" class="${parentTheme.class} ${themeClass}"></div>
+ * the class "${themeClass}" to the div containing the grid:
+ * <div id="myGrid" class="${themeClass}"></div>
  * 
  * See https://ag-grid.com/javascript-data-grid/global-style-customisation/
  */

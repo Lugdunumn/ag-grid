@@ -1,5 +1,4 @@
 import { useColorScheme } from '@mui/joy';
-import { useParentTheme } from 'atoms/parentTheme';
 import { VariableDescriptions, useUpdateVariableDescriptions } from 'atoms/variableDescriptions';
 import { registerFeatureModules } from 'model/features';
 import { useEffect, useLayoutEffect } from 'react';
@@ -13,8 +12,8 @@ export const App = ({ variableDescriptions }: ThemeBuilderAppProps) => {
   useUpdateVariableDescriptions()(variableDescriptions);
   useEffect(registerFeatureModules, []);
 
-  const parentTheme = useParentTheme();
-  const isDark = parentTheme.class.includes('-dark');
+  // TODO restore logic for detecting dark mode
+  const isDark = false;
 
   useLayoutEffect(() => {
     const htmlElement = document.querySelector('html');

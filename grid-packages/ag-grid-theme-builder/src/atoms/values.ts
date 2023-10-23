@@ -1,10 +1,10 @@
+import { Expression } from 'design-system/css-in-js';
 import { atom, useAtom, useAtomValue } from 'jotai';
 import { mapPresentObjectValues } from 'model/utils';
-import { Value } from 'model/values';
 import { allVariableNames } from 'model/variableInfo';
 
 export const valueAtomsByVariableName = Object.fromEntries(
-  allVariableNames.map((variableName) => [variableName, atom<Value | null>(null)]),
+  allVariableNames.map((variableName) => [variableName, atom<Expression | null>(null)]),
 );
 
 export const allValueAtoms = Object.values(valueAtomsByVariableName);
@@ -25,4 +25,5 @@ export const valuesAtom = atom((get) =>
   mapPresentObjectValues(valueAtomsByVariableName, (atom) => get(atom)),
 );
 
-export const useVariableValues = () => useAtomValue(valuesAtom);
+export const useVariableValues = (): Record<string, Expression | undefined> =>
+  useAtomValue(valuesAtom);

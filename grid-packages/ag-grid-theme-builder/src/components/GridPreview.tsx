@@ -2,7 +2,6 @@ import { ColDef, Grid, GridApi, GridOptions } from '@ag-grid-community/core';
 import styled from '@emotion/styled';
 import { useCurrentFeature } from 'atoms/currentFeature';
 import { useEnabledFeatures } from 'atoms/enabledFeatures';
-import { useParentTheme } from 'atoms/parentTheme';
 import { useThemeClass } from 'atoms/theme';
 import { useVariableValues } from 'atoms/values';
 import { withErrorBoundary } from 'components/ErrorBoundary';
@@ -22,7 +21,6 @@ const variablesRequiringRebuild = [
 const GridPreview = () => {
   const features = useEnabledFeatures();
   const currentFeature = useCurrentFeature();
-  const parentTheme = useParentTheme();
   const themeClass = useThemeClass();
   const values = useVariableValues();
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -39,8 +37,7 @@ const GridPreview = () => {
   const rebuildKey = variablesRequiringRebuild
     .map((variableName) => values[variableName])
     .filter(isNotNull)
-    .map((value) => value.toCss())
-    .concat(parentTheme.class)
+    .map((value) => value.valueCss())
     .concat(features.map((f) => f.name))
     .join(';');
 
@@ -94,7 +91,7 @@ const GridPreview = () => {
   return (
     <>
       <Wrapper
-        className={`${parentTheme.class} ${themeClass}`}
+        className={`${themeClass}`}
         ref={wrapperRef}
         style={{ display: PreviewComponent ? 'none' : 'block' }}
       ></Wrapper>
