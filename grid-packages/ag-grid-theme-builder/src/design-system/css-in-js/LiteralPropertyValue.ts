@@ -1,6 +1,6 @@
 import { PropertyValue } from './PropertyValue';
 
-export class LiteralPropertyValue<T> extends PropertyValue<T> {
+export class LiteralPropertyValue extends PropertyValue {
   constructor(readonly css: string) {
     super();
   }

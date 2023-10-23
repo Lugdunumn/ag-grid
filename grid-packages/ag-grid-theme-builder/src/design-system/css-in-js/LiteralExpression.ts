@@ -1,6 +1,6 @@
 import { Expression } from './Expression';
 
-export class LiteralExpression<T> extends Expression<T> {
+export class LiteralExpression extends Expression {
   constructor(readonly css: string) {
     super();
   }

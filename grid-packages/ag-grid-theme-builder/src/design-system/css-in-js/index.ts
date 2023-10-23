@@ -12,7 +12,7 @@ export const dimension = (number: number, units: string) => new DimensionExpress
 
 export const px = (number: number) => dimension(number, 'px');
 
-export const literal = <T extends string>(css: T) => new LiteralExpression<T>(css);
+export const literal = (css: string) => new LiteralExpression(css);
 
 export const rgb = (r: number, g: number, b: number, a = 1) => new ColorExpression(r, g, b, a);
 

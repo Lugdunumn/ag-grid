@@ -1,6 +1,6 @@
 import { Expression } from './Expression';
 
-export class DimensionExpression extends Expression<DimensionExpression> {
+export class DimensionExpression extends Expression {
   constructor(
     readonly number: number,
     readonly units: string,

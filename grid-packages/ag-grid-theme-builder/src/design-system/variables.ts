@@ -1,7 +1,4 @@
-import { ColorExpression } from './css-in-js/ColorExpression';
-import { DimensionExpression } from './css-in-js/DimensionExpression';
 import { Expression } from './css-in-js/Expression';
-import { StringsExpression } from './css-in-js/StringsExpression';
 
 type ColorVariable =
   | 'activeColor'
@@ -102,26 +99,32 @@ type DimensionVariable =
   | 'widgetHorizontalSpacing'
   | 'widgetVerticalSpacing';
 
-// type BorderVariable =
-//   | 'borders'
-//   | 'bordersCritical'
-//   | 'bordersInput'
-//   | 'bordersInputInvalid'
-//   | 'bordersSecondary'
-//   | 'bordersSideButton'
-//   | 'cellHorizontalBorder'
-//   | 'rangeSelectionBorderStyle'
-//   | 'rowBorderStyle'
-//   | 'rowBorderWidth'
-//   | 'toggleButtonBorderWidth'
-//   | 'wrapperBorderRadius';
+type BorderVariable =
+  | 'borders'
+  | 'bordersCritical'
+  | 'bordersInput'
+  | 'bordersInputInvalid'
+  | 'bordersSecondary'
+  | 'bordersSideButton'
+  | 'cellHorizontalBorder'
+  | 'rangeSelectionBorderStyle'
+  | 'rowBorderStyle'
+  | 'rowBorderWidth'
+  | 'toggleButtonBorderWidth'
+  | 'wrapperBorderRadius';
 
-// type DisplayVariable = 'headerColumnSeparatorDisplay' | 'headerColumnResizeHandleDisplay';
+type DisplayVariable = 'headerColumnSeparatorDisplay' | 'headerColumnResizeHandleDisplay';
 
 type StringsVariable = 'fontFamily' | 'iconFontFamily';
 
-// type ShadowVariable = 'cardShadow' | 'inputFocusBoxShadow' | 'popupShadow';
+type ShadowVariable = 'cardShadow' | 'inputFocusBoxShadow' | 'popupShadow';
 
-export type Variables = Record<ColorVariable, Expression<ColorExpression>> &
-  Record<DimensionVariable, Expression<DimensionExpression>> &
-  Record<StringsVariable, Expression<StringsExpression>>;
+export type Variable =
+  | ColorVariable
+  | DimensionVariable
+  | BorderVariable
+  | DisplayVariable
+  | StringsVariable
+  | ShadowVariable;
+
+export type Variables = Record<Variable, Expression>;

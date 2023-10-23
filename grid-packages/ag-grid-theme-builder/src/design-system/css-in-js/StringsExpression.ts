@@ -1,6 +1,6 @@
 import { Expression } from './Expression';
 
-export class StringsExpression extends Expression<StringsExpression> {
+export class StringsExpression extends Expression {
   constructor(readonly content: string[]) {
     super();
   }

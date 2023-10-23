@@ -1,7 +1,7 @@
 import { clamp } from 'model/utils';
 import { Expression } from './Expression';
 
-export class ColorExpression extends Expression<ColorExpression> {
+export class ColorExpression extends Expression {
   constructor(
     readonly r: number,
     readonly g: number,
