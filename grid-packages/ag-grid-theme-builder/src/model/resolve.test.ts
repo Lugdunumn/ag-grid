@@ -1,5 +1,5 @@
 import { Expression, calc, dimension, px, rgb, v } from 'design-system/css-in-js';
-import { resolve } from 'resolve';
+import { resolve } from 'model/resolve';
 import { expect, test } from 'vitest';
 
 test('resolve calc', () => {
@@ -28,10 +28,15 @@ test('resolve calc', () => {
   ).toThrowErrorMatchingInlineSnapshot(
     '"Expected var(--ag-foreground-color) to resolve to a dimension, but got rgb(0, 0, 0) (while evaluating calc(1px + var(--ag-foreground-color)))"',
   );
+  expect(() => resolve(untypedCalc(px(1), '+'), {})).toThrowErrorMatchingInlineSnapshot(
+    '"Invalid expression (1 +) (while evaluating calc(1px +))"',
+  );
   expect(() =>
-    resolve((calc as (a: unknown, b: unknown) => Expression)(px(1), '+'), {}),
-  ).toThrowErrorMatchingInlineSnapshot('"Invalid calc expression calc(1px +)"');
+    resolve(v.iconSize, { iconSize: untypedCalc('+') }),
+  ).toThrowErrorMatchingInlineSnapshot('"Invalid expression (+) (while evaluating var(--ag-icon-size) -> calc(+))"');
 });
+
+const untypedCalc = calc as (...parts: unknown[]) => Expression;
 
 test('resolve var', () => {
   // simple
