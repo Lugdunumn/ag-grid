@@ -19,7 +19,31 @@ export const renderRules = (nestedRules: Rules): string => {
   return result.join('').trim();
 };
 
-Next up: think about how to only allow @keyframes at top level, and what flattenNestedBlock should return.
+Next up: think about how to only allow @keyframes etc at top level, and what flattenNestedBlock should return.
+
+See Sass playground with:
+
+input {
+  color: red;
+  @font-face {
+    	font-family: monospace;
+    	src: url(./some-url);
+    }
+
+  @media only screen and (max-width: 600px) {
+    body {
+      background-color: lightblue;
+    }
+  }
+  @keyframes foo-bar {
+      	from {
+      		color: red;
+      	}
+      	to {
+      		color: blue;
+      	}
+      }
+}
 
 // flatten a block that can contain declarations e.g. 'color: red' or nested blocks
 const flattenNestedBlock = (rule: Block): StyleRule[] => {
