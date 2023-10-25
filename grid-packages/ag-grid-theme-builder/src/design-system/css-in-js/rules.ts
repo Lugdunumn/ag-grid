@@ -4,8 +4,10 @@ export type Rules = Record<string, Block>;
 // A block that can contain both style declarations and nested blocks, e.g:
 // {color: red, {'&:hover': {color: blue}}}
 export type Block = {
-  [key: string]: PropertyValue | Block | null | undefined;
+  [key: string]: BlockValue;
 };
+
+export type BlockValue = PropertyValue | ReadonlyArray<PropertyValue> | Block | null | undefined;
 
 // The right-hand side of a CSS `property-name: value` pair
 export interface PropertyValue {

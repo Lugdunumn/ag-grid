@@ -1,4 +1,4 @@
-import { Block, PropertyValue, Rules } from './rules';
+import { Block, BlockValue, PropertyValue, Rules } from './rules';
 import { toKebabCase } from './utils';
 
 export const renderRules = (nestedRules: Rules): string => {
@@ -19,6 +19,8 @@ export const renderRules = (nestedRules: Rules): string => {
   return result.join('').trim();
 };
 
+Next up: think about how to only allow @keyframes at top level, and what flattenNestedBlock should return.
+
 // flatten a block that can contain declarations e.g. 'color: red' or nested blocks
 const flattenNestedBlock = (rule: Block): StyleRule[] => {
   const blockDeclarations: Declaration[] = [];
@@ -26,9 +28,12 @@ const flattenNestedBlock = (rule: Block): StyleRule[] => {
   const result: StyleRule[] = [];
   for (const [key, valueOrBlock] of Object.entries(rule)) {
     if (valueOrBlock == null) continue;
-    if (isPropertyValue(valueOrBlock)) {
+    if (isPropertyValue(valueOrBlock) || isPropertyValueArray(valueOrBlock)) {
       const property = toKebabCase(key);
-      const value = valueOrBlock.css;
+      const value = isPropertyValueArray(valueOrBlock)
+        ? valueOrBlock.map((v: PropertyValue) => v.css).join(' ')
+        : valueOrBlock.css;
+      if (value === '') continue;
       if (/\b(leading|trailing)\b/.test(property)) {
         ltrDeclarations.push({
           property: property.replaceAll('leading', 'left').replaceAll('trailing', 'right'),
@@ -65,8 +70,11 @@ const flattenNestedBlock = (rule: Block): StyleRule[] => {
   return result;
 };
 
-const isPropertyValue = (value: unknown): value is PropertyValue =>
+const isPropertyValue = (value: BlockValue): value is PropertyValue =>
   value instanceof Object && 'css' in value && typeof value.css === 'string';
+
+const isPropertyValueArray = (value: BlockValue): value is ReadonlyArray<PropertyValue> =>
+  Array.isArray(value);
 
 // Combine StyleRules with one or more parent selectors, using a
 // https://en.wikipedia.org/wiki/Cartesian_product
@@ -100,11 +108,14 @@ export const joinSelectors = (a: string, b: string): string => {
   return b.replaceAll('&', a);
 };
 
-const parseSelectorsString = (input: string) =>
-  input
+const parseSelectorsString = (input: string) => {
+  input = input.trim();
+  if (input.startsWith('@')) return [input];
+  return input
     .trim()
-    .replaceAll(/((?<![\w"'[:-])[a-z]+|\.[a-z]+)(?![a-z-])/gi, mapElementsToClassNames)
+    .replaceAll(/((?<![\w"'@[:-])[a-z]+|\.[a-z]+)(?![a-z-])/gi, mapElementsToClassNames)
     .split(/\s*,\s*/);
+};
 
 // someClass -> .ag-some-class
 const mapElementsToClassNames = (element: string): string => {

@@ -1,13 +1,11 @@
 export { Expression } from './Expression';
-export { CalcExpression, calc } from './calc';
-export { ColorExpression, hex, rgb } from './color';
-export { DimensionExpression, dimension, px } from './dimension';
-export { LiteralExpression, literal } from './literal';
-export { ColorMixExpression, mix } from './mix';
-export { strings } from './strings';
-export { VarExpression, v } from './v';
-
+export * from './calc';
+export * from './color';
+export * from './dimension';
 export * from './expression-constants';
+export * from './literal';
+export * from './mix';
+export * from './v';
 
 export { inject } from './inject';
 export { renderRules } from './render';

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { literal, px } from '.';
+import { literal, px, solid } from '.';
 import { ColorExpression } from './color';
 import { joinSelectors, renderRules } from './render';
 
@@ -15,6 +15,20 @@ test(`Render a flat rule`, () => {
     "a {
     	color: red;
     	background-color: green;
+    }"
+  `);
+});
+
+test(`Render a compound property value`, () => {
+  expect(
+    renderRules({
+      a: {
+        border: [solid, px(1), red],
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    "a {
+    	border: solid 1px red;
     }"
   `);
 });
@@ -265,6 +279,48 @@ test(`Convert camelCase to .ag-kebab-case class names`, () => {
     }"
   `);
 });
+
+test(`Render @keyframes blocks`, () => {
+  expect(
+    renderRules({
+      '@keyframes fooBar': {
+        from: {
+          color: red,
+        },
+        to: {
+          color: blue,
+        },
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    "@keyframes foo-bar {
+    	from {
+    		color: red;
+    	}
+    	to {
+    		color: blue;
+    	}
+    }"
+  `);
+});
+
+test(`Render @font-face blocks`, () => {
+  expect(
+    renderRules({
+      '@font-face': {
+        fontFamily: literal('monospace'),
+        src: literal('url(./some-url)'),
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    "@font-face {
+    	font-family: monospace;
+    	src: url(./some-url);
+    }"
+  `);
+});
+
+// TODO also @media and @font-face
 
 const red = literal('red') as unknown as ColorExpression;
 const green = literal('green') as unknown as ColorExpression;

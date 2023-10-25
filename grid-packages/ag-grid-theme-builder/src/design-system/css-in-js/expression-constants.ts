@@ -4,13 +4,19 @@ import { literal } from './literal';
 export const block = literal('block');
 export const none = literal('none');
 export const flex = literal('flex');
+export const auto = literal('auto');
 export const inlineBlock = literal('inline-block');
+
+export const absolute = literal('absolute');
+export const relative = literal('relative');
+export const sticky = literal('sticky');
 
 export const solid = literal('solid');
 export const dotted = literal('dotted');
 export const dashed = literal('dashed');
 
 export const zero = dimension(0, '');
+export const one = dimension(1, '');
 
 export const hidden = literal('hidden');
 export const visible = literal('visible');
@@ -20,3 +26,7 @@ export const bold = literal('bold');
 export const semiBold = literal('600');
 
 export const transparent = rgb(0, 0, 0, 0);
+
+export const center = literal('center');
+export const flexStart = literal('flex-start');
+export const flexEnd = literal('flex-end');

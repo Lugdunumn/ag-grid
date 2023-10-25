@@ -108,7 +108,7 @@ type Hex8<T extends string> = T extends `${Hex1}${infer Rest}`
   : never;
 
 // A valid hex color string e.g. #f00 with 3, 4, 6 or 8 digits
-export type HexColorString<T extends string> = T extends `#${infer Rest}`
+type HexColorString<T extends string> = T extends `#${infer Rest}`
   ? // else (if T is a string literal) require it's in the right format
     Rest extends Hex3<Rest> | Hex4<Rest> | Hex6<Rest> | Hex8<Rest>
     ? T

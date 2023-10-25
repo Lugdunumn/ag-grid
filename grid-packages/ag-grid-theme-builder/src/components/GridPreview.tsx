@@ -60,20 +60,22 @@ const GridPreview = () => {
             feature.restoreState?.(api, state);
           }
         }
+        setApi(api);
       },
     };
 
     // TODO use createGrid after merging spike branch
-    new Grid(wrapperRef.current, options);
-    const api = options.api!;
-    apiRef.current = api;
-    setApi(api);
+    const grid = new Grid(wrapperRef.current, options);
+    apiRef.current = null;
+    setApi(null);
 
     return () => {
-      for (const feature of features) {
-        featureState[feature.name] = feature.getState?.(api);
+      if (apiRef.current) {
+        for (const feature of features) {
+          featureState[feature.name] = feature.getState?.(apiRef.current);
+        }
       }
-      api.destroy();
+      grid.destroy();
     };
   }, [features, rebuildKey]);
 
