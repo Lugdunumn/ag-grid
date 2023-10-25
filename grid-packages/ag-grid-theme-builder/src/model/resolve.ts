@@ -1,9 +1,13 @@
 import {
   CalcExpression,
+  ColorExpression,
+  ColorMixExpression,
   DimensionExpression,
   Expression,
   VarExpression,
   dimension,
+  rgb,
+  transparent,
 } from 'design-system/css-in-js';
 
 export type VariableValues = Record<string, Expression | null | undefined>;
@@ -21,6 +25,8 @@ const doResolve = (expr: Expression, values: VariableValues, stack: Expression[]
   }
   if (expr instanceof CalcExpression) {
     return resolveCalc(expr, values, [...stack, expr]);
+  } else if (expr instanceof ColorMixExpression) {
+    return resolveColorMix(expr, values, [...stack, expr]);
   } else if (expr instanceof VarExpression) {
     return resolveVar(expr, values, [...stack, expr]);
   }
@@ -28,12 +34,12 @@ const doResolve = (expr: Expression, values: VariableValues, stack: Expression[]
 };
 
 const resolveCalc = (
-  calc: CalcExpression,
+  expr: CalcExpression,
   values: VariableValues,
   stack: Expression[],
 ): DimensionExpression => {
   let units = '';
-  const expression = calc.parts
+  const expression = expr.parts
     .map((part): number | string => {
       if (typeof part === 'number' || typeof part === 'string') {
         return part;
@@ -41,15 +47,13 @@ const resolveCalc = (
       const resolved = doResolve(part, values, stack);
       if (!(resolved instanceof DimensionExpression)) {
         throw new Error(
-          `Expected ${part.expressionCss()} to resolve to a dimension, but got ${
-            resolved?.expressionCss() || null
-          } (while evaluating ${calc.expressionCss()})`,
+          `Expected ${part.expressionCss()} to resolve to a dimension, but got ${resolved?.expressionCss()} (while evaluating ${expr.expressionCss()})`,
         );
       }
       units ||= resolved.units;
       if (units && resolved.units && units !== resolved.units) {
         throw new Error(
-          `Mixed units in calc expression ${calc.expressionCss()} (${units} and ${resolved.units})`,
+          `Mixed units in calc expression ${expr.expressionCss()} (${units} and ${resolved.units})`,
         );
       }
       return +resolved.number;
@@ -71,6 +75,50 @@ const resolveCalc = (
 };
 
 const describeStack = (stack: Expression[]) => stack.map((e) => e.expressionCss()).join(' -> ');
+
+const resolveColorMix = (
+  expr: ColorMixExpression,
+  values: VariableValues,
+  stack: Expression[],
+): ColorExpression => {
+  const getResolvedColor = (value: Expression): ColorExpression => {
+    const resolved = doResolve(value, values, stack);
+    if (!(resolved instanceof ColorExpression)) {
+      throw new Error(
+        `Expected ${value.expressionCss()} to resolve to a color, but got ${resolved?.expressionCss()} (while evaluating ${expr.expressionCss()})`,
+      );
+    }
+    return resolved;
+  };
+
+  // blend the two colors using "source over destination" alpha compositing -
+  // https://en.wikipedia.org/wiki/Alpha_compositing - which produces the same
+  // effect as the CSS blend:
+  // color-mix(in srgb, background, foreground, foregroundAmount)
+  const bg = getResolvedColor(expr.background);
+  const fg = getResolvedColor(expr.foreground);
+
+  const fgR = byteToFloat(fg.r);
+  const fgG = byteToFloat(fg.g);
+  const fgB = byteToFloat(fg.b);
+  const fgA = fg.a * expr.foregroundAmount;
+  const bgR = byteToFloat(bg.r);
+  const bgG = byteToFloat(bg.g);
+  const bgB = byteToFloat(bg.b);
+  const bgA = bg.a * (1 - fgA);
+
+  const outA = bgA + fgA;
+  if (outA === 0) return transparent;
+  return rgb(
+    floatToByte((fgR * fgA + bgR * bgA) / outA),
+    floatToByte((fgG * fgA + bgG * bgA) / outA),
+    floatToByte((fgB * fgA + bgB * bgA) / outA),
+    outA,
+  );
+};
+
+const floatToByte = (f: number) => Math.floor(f >= 1 ? 255 : f * 256);
+const byteToFloat = (b: number) => (b >= 255 ? 1 : b / 256);
 
 const resolveVar = (
   { propertyName }: VarExpression,

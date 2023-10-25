@@ -1,4 +1,4 @@
-import { dimension } from '.';
+import { dimension, rgb } from '.';
 import { literal } from './literal';
 
 export const block = literal('block');
@@ -18,3 +18,5 @@ export const visible = literal('visible');
 export const normal = literal('normal');
 export const bold = literal('bold');
 export const semiBold = literal('600');
+
+export const transparent = rgb(0, 0, 0, 0);

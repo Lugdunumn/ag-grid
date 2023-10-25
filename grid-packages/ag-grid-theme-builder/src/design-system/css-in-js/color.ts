@@ -3,7 +3,24 @@ import { Expression } from './Expression';
 
 export const rgb = (r: number, g: number, b: number, a = 1) => new ColorExpression(r, g, b, a);
 
-export const hex = <T extends string>(value: HexColorString<T>) => ColorExpression.fromHex(value);
+export const hex = <T extends string>(input: HexColorString<T>, alpha = 1) => {
+  let digits: string = input;
+  digits = digits.substring(1);
+  if (digits.length === 3) digits += 'f';
+  if (digits.length === 4)
+    digits =
+      digits[0] + digits[0] + digits[1] + digits[1] + digits[2] + digits[2] + digits[3] + digits[3];
+  else if (digits.length === 6) digits += 'ff';
+  const value = parseInt(digits, 16);
+  if (digits.length !== 8 || isNaN(value)) throw new Error(`Invalid hex "${digits}"`);
+  const parsedAlpha = value % 0x100;
+  return new ColorExpression(
+    (value >>> 24) % 0x100,
+    (value >>> 16) % 0x100,
+    (value >>> 8) % 0x100,
+    (parsedAlpha === 255 ? 1 : parsedAlpha / 256) * alpha,
+  );
+};
 
 export class ColorExpression extends Expression {
   constructor(
@@ -13,45 +30,18 @@ export class ColorExpression extends Expression {
     readonly a: number,
   ) {
     super();
-    this.r = clamp(r, 0, 1);
-    this.g = clamp(g, 0, 1);
-    this.b = clamp(b, 0, 1);
+    this.r = Math.round(clamp(r, 0, 255));
+    this.g = Math.round(clamp(g, 0, 255));
+    this.b = Math.round(clamp(b, 0, 255));
     this.a = clamp(a, 0, 1);
   }
 
   expressionCss(): string {
-    const r = Math.round(this.r * 255);
-    const g = Math.round(this.g * 255);
-    const b = Math.round(this.b * 255);
+    const g = Math.round(this.g);
+    const r = Math.round(this.r);
+    const b = Math.round(this.b);
     const a = Math.floor(this.a * 100) / 100;
     return a === 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a})`;
-  }
-
-  withAlpha(alpha: number): ColorExpression {
-    return new ColorExpression(this.r, this.g, this.b, this.a * clamp(alpha, 0, 1));
-  }
-
-  withTemperature(percent: number): ColorExpression {
-    const amount = 1 - Math.abs(this.r - 0.5) * 2;
-    const newR = this.r + this.r * percent * -0.01 * amount;
-    return new ColorExpression(newR, this.g, this.b, this.a);
-  }
-
-  static fromHex<T extends string>(input: HexColorString<T>) {
-    let hex: string = input;
-    hex = hex.substring(1);
-    if (hex.length === 3) hex += 'f';
-    if (hex.length === 4)
-      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
-    else if (hex.length === 6) hex += 'ff';
-    const value = parseInt(hex, 16);
-    if (hex.length !== 8 || isNaN(value)) throw new Error(`Invalid hex "${hex}"`);
-    return new ColorExpression(
-      (value >>> 24) % 0x100,
-      (value >>> 16) % 0x100,
-      (value >>> 8) % 0x100,
-      value % 0x100,
-    );
   }
 }
 
@@ -97,14 +87,26 @@ type Hex4<T extends string> = T extends `${Hex1}${infer Rest}`
     : never
   : never;
 
-type Hex6<T extends string> = T extends `${Hex3<infer _>}${infer Rest}`
-  ? Rest extends Hex3<Rest>
+type Hex5<T extends string> = T extends `${Hex1}${infer Rest}`
+  ? Rest extends Hex4<Rest>
     ? T
     : never
   : never;
 
-type Hex8<T extends string> = T extends `${Hex4<infer _>}${infer Rest}`
-  ? Rest extends Hex4<Rest>
+type Hex6<T extends string> = T extends `${Hex1}${infer Rest}`
+  ? Rest extends Hex5<Rest>
+    ? T
+    : never
+  : never;
+
+type Hex7<T extends string> = T extends `${Hex1}${infer Rest}`
+  ? Rest extends Hex6<Rest>
+    ? T
+    : never
+  : never;
+
+type Hex8<T extends string> = T extends `${Hex1}${infer Rest}`
+  ? Rest extends Hex7<Rest>
     ? T
     : never
   : never;
