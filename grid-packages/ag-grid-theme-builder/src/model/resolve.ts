@@ -18,7 +18,7 @@ export const resolve = (expr: Expression, values: VariableValues) => {
 
 const doResolve = (expr: Expression, values: VariableValues, stack: Expression[]) => {
   if (stack.length >= 100) {
-    const cssStack = stack.map((e) => e.expressionCss());
+    const cssStack = stack.map((e) => e.css);
     const recursionIndex = cssStack.indexOf(cssStack[0], 1);
     const path = cssStack.slice(0, recursionIndex == -1 ? 10 : recursionIndex + 1).join(' -> ');
     throw new Error(`Infinite recursion detected while evaluating ${path}`);
@@ -47,13 +47,13 @@ const resolveCalc = (
       const resolved = doResolve(part, values, stack);
       if (!(resolved instanceof DimensionExpression)) {
         throw new Error(
-          `Expected ${part.expressionCss()} to resolve to a dimension, but got ${resolved?.expressionCss()} (while evaluating ${expr.expressionCss()})`,
+          `Expected ${part.css} to resolve to a dimension, but got ${resolved?.css} (while evaluating ${expr.css})`,
         );
       }
       units ||= resolved.units;
       if (units && resolved.units && units !== resolved.units) {
         throw new Error(
-          `Mixed units in calc expression ${expr.expressionCss()} (${units} and ${resolved.units})`,
+          `Mixed units in calc expression ${expr.css} (${units} and ${resolved.units})`,
         );
       }
       return +resolved.number;
@@ -74,7 +74,7 @@ const resolveCalc = (
   }
 };
 
-const describeStack = (stack: Expression[]) => stack.map((e) => e.expressionCss()).join(' -> ');
+const describeStack = (stack: Expression[]) => stack.map((e) => e.css).join(' -> ');
 
 const resolveColorMix = (
   expr: ColorMixExpression,
@@ -85,7 +85,7 @@ const resolveColorMix = (
     const resolved = doResolve(value, values, stack);
     if (!(resolved instanceof ColorExpression)) {
       throw new Error(
-        `Expected ${value.expressionCss()} to resolve to a color, but got ${resolved?.expressionCss()} (while evaluating ${expr.expressionCss()})`,
+        `Expected ${value.css} to resolve to a color, but got ${resolved?.css} (while evaluating ${expr.css})`,
       );
     }
     return resolved;

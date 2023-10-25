@@ -15,12 +15,12 @@ export const DefaultValue = ({ value }: DefaultValueProps) => {
       <>(transparent)</>
     ) : (
       <ColorSwatchBackground>
-        <ColorSwatch style={{ backgroundColor: value.expressionCss() }} />
+        <ColorSwatch style={{ backgroundColor: value.css }} />
       </ColorSwatchBackground>
     );
   }
 
-  return <span>{value.expressionCss()}</span>;
+  return <span>{value.css}</span>;
 };
 
 const NoDefault = styled('div')`

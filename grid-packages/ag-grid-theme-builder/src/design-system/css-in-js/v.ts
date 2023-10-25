@@ -5,11 +5,7 @@ export const v = proxy<VariableName, VarExpression>((prop) => new VarExpression(
 
 export class VarExpression extends Expression {
   constructor(readonly propertyName: string) {
-    super();
-  }
-
-  expressionCss(): string {
-    return `var(--ag-${String(toKebabCase(String(this.propertyName)))})`;
+    super(`var(--ag-${String(toKebabCase(String(propertyName)))})`);
   }
 }
 

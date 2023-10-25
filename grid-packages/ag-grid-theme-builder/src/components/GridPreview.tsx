@@ -37,7 +37,7 @@ const GridPreview = () => {
   const rebuildKey = variablesRequiringRebuild
     .map((variableName) => values[variableName])
     .filter(isNotNull)
-    .map((value) => value.valueCss())
+    .map((value) => value.css)
     .concat(features.map((f) => f.name))
     .join(';');
 

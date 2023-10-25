@@ -16,12 +16,9 @@ export class ColorMixExpression extends Expression {
     readonly foreground: MixableExpression,
     readonly foregroundAmount: number,
   ) {
-    super();
-    this.foregroundAmount = clamp(foregroundAmount, 0, 1);
-  }
-
-  expressionCss(): string {
-    const bPercent = Math.round(this.foregroundAmount * 100);
-    return `color-mix(in srgb, ${this.background.expressionCss()}, ${this.foreground.expressionCss()}, ${bPercent}%)`;
+    foregroundAmount = clamp(foregroundAmount, 0, 1);
+    const foregroundPercent = Math.round(foregroundAmount * 100);
+    super(`color-mix(in srgb, ${background.css}, ${foreground.css}, ${foregroundPercent}%)`);
+    this.foregroundAmount = foregroundAmount;
   }
 }

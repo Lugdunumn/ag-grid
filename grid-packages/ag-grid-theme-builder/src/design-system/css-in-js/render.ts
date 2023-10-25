@@ -26,9 +26,9 @@ const flattenNestedBlock = (rule: Block): StyleRule[] => {
   const result: StyleRule[] = [];
   for (const [key, valueOrBlock] of Object.entries(rule)) {
     if (valueOrBlock == null) continue;
-    if (valueOrBlock instanceof PropertyValue) {
+    if (isPropertyValue(valueOrBlock)) {
       const property = toKebabCase(key);
-      const value = valueOrBlock.valueCss();
+      const value = valueOrBlock.css;
       if (/\b(leading|trailing)\b/.test(property)) {
         ltrDeclarations.push({
           property: property.replaceAll('leading', 'left').replaceAll('trailing', 'right'),
@@ -64,6 +64,9 @@ const flattenNestedBlock = (rule: Block): StyleRule[] => {
   }
   return result;
 };
+
+const isPropertyValue = (value: unknown): value is PropertyValue =>
+  value instanceof Object && 'css' in value && typeof value.css === 'string';
 
 // Combine StyleRules with one or more parent selectors, using a
 // https://en.wikipedia.org/wiki/Cartesian_product

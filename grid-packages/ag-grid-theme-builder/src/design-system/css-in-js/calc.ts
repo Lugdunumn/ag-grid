@@ -25,29 +25,22 @@ type CalcExtension<L extends CalcPart[], R extends CalcPart[]> = R extends []
 
 export class CalcExpression extends Expression {
   constructor(readonly parts: ReadonlyArray<CalcPart>) {
-    super();
-  }
-
-  calcCss(nested: boolean): string {
-    return (
-      (nested ? '(' : 'calc(') +
-      this.parts
-        .map((part): string => {
-          switch (typeof part) {
-            case 'string':
-              return part;
-            case 'number':
-              return String(part);
-            case 'object':
-              return part instanceof CalcExpression ? part.calcCss(true) : part.expressionCss();
-          }
-        })
-        .join(' ') +
-      ')'
-    );
-  }
-
-  expressionCss(): string {
-    return this.calcCss(false);
+    super(calcCss(parts, false));
   }
 }
+
+const calcCss = (parts: ReadonlyArray<CalcPart>, nested: boolean): string =>
+  (nested ? '(' : 'calc(') +
+  parts
+    .map((part): string => {
+      switch (typeof part) {
+        case 'string':
+          return part;
+        case 'number':
+          return String(part);
+        case 'object':
+          return part instanceof CalcExpression ? calcCss(part.parts, true) : part.css;
+      }
+    })
+    .join(' ') +
+  ')';

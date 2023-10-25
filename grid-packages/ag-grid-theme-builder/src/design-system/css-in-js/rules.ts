@@ -8,8 +8,8 @@ export type Block = {
 };
 
 // The right-hand side of a CSS `property-name: value` pair
-export abstract class PropertyValue {
-  abstract valueCss(): string;
+export interface PropertyValue {
+  readonly css: string;
 }
 
 export const rules = (part: Rules) => part;

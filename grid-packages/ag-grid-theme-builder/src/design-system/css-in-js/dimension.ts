@@ -8,10 +8,6 @@ export class DimensionExpression extends Expression {
     readonly number: number,
     readonly units: string,
   ) {
-    super();
-  }
-
-  expressionCss(): string {
-    return this.number + this.units;
+    super(number + units);
   }
 }

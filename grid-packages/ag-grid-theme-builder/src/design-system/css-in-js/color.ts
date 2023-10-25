@@ -29,19 +29,15 @@ export class ColorExpression extends Expression {
     readonly b: number,
     readonly a: number,
   ) {
-    super();
-    this.r = Math.round(clamp(r, 0, 255));
-    this.g = Math.round(clamp(g, 0, 255));
-    this.b = Math.round(clamp(b, 0, 255));
-    this.a = clamp(a, 0, 1);
-  }
-
-  expressionCss(): string {
-    const g = Math.round(this.g);
-    const r = Math.round(this.r);
-    const b = Math.round(this.b);
-    const a = Math.floor(this.a * 100) / 100;
-    return a === 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a})`;
+    r = Math.round(clamp(r, 0, 255));
+    g = Math.round(clamp(g, 0, 255));
+    b = Math.round(clamp(b, 0, 255));
+    a = clamp(a, 0, 1);
+    super(a === 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a})`);
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
   }
 }
 
