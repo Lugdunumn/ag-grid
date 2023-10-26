@@ -15,3 +15,5 @@ export interface PropertyValue {
 }
 
 export const rules = (part: Rules) => part;
+
+type;
