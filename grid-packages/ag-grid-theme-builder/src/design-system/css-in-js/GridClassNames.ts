@@ -4,6 +4,35 @@
  * Generate it using `ts-node ./generate-grid-class-name-interfaces.ts`
  */
 
+type GroupComponent<T extends string> =
+  | `${T}Group`
+  | `${T}GroupItem`
+  | `${T}GroupTitleBar`
+  | `${T}GroupTitleBarIcon`
+  | `${T}GroupTitle`
+  | `${T}GroupToolbar`
+  | `${T}GroupContainer`;
+
+type ListComponent<T extends string> =
+  | `${T}List`
+  | `${T}ListItem`;
+
+type VirtualListComponent<T extends string> =
+  | `${T}VirtualListViewport`
+  | `${T}VirtualListContainer`
+  | `${T}VirtualListItem`;
+
+type PanelComponent<T extends string> =
+  | `${T}Panel`
+  | `${T}PanelTitleBar`
+  | `${T}PanelTitleBarTitle`
+  | `${T}PanelTitleBarButtons`
+  | `${T}PanelContentWrapper`;
+
+type TabsComponent<T extends string> =
+  | T
+  | `${T}Header`
+  | `${T}Body`
 export type AdvancedFilterClassNames =
   | 'advancedFilter'
   | 'advancedFilterApplyButton'
@@ -41,15 +70,7 @@ export type AdvancedFilterClassNames =
   | 'advancedFilterBuilderVirtualListItemHighlight'
   | 'advancedFilterHeader'
   | 'advancedFilterHeaderCell'
-  | 'button'
-  | 'dragHandle'
-  | 'pickerCollapsed'
-  | 'pickerField'
-  | 'pickerFieldDisplay'
-  | 'pickerFieldIcon'
-  | 'richSelectFieldInput'
   | 'standardButton'
-  | 'wrapper'
   | VirtualListComponent<'advancedFilterBuilder'>;
 
 export type ChartsClassNames =
@@ -59,7 +80,6 @@ export type ChartsClassNames =
   | 'angleSelectParentCircle'
   | 'angleSelectWrapper'
   | 'animating'
-  | 'button'
   | 'chart'
   | 'chartCanvasWrapper'
   | 'chartComponentsWrapper'
@@ -97,9 +117,7 @@ export type ChartsClassNames =
   | 'colorPanel'
   | 'colorPicker'
   | 'dataSelectCheckbox'
-  | 'dragHandle'
   | 'fontPanel'
-  | 'icon'
   | 'itemHighlightBottom'
   | 'itemHighlightTop'
   | 'list'
@@ -108,7 +126,6 @@ export type ChartsClassNames =
   | 'recentColor'
   | 'recentColors'
   | 'scrollableContainer'
-  | 'selected'
   | 'spectrumAlpha'
   | 'spectrumAlphaBackground'
   | 'spectrumColor'
@@ -122,7 +139,6 @@ export type ChartsClassNames =
   | 'spectrumTools'
   | 'spectrumVal'
   | 'unselectable'
-  | 'wrapper'
   | PanelComponent<'chartMenu'>
   | PanelComponent<'chartData'>
   | GroupComponent<'chartsFormatSubLevel'>
@@ -150,9 +166,7 @@ export type ColumnToolPanelClassNames =
   | 'columnSelectHeaderFilterWrapper'
   | 'columnSelectHeaderIcon'
   | 'columnSelectList'
-  | 'dragHandle'
   | 'lastColumnDrop'
-  | 'menu'
   | 'pivotModePanel'
   | 'pivotModeSelect'
   | VirtualListComponent<'columnSelect'>;
@@ -209,7 +223,6 @@ export type CoreClassNames =
   | 'cellWrapper'
   | 'centerColsContainer'
   | 'centerColsViewport'
-  | 'chartDockedContainer'
   | 'checkbox'
   | 'checkboxCell'
   | 'checkboxEdit'
@@ -477,7 +490,6 @@ export type CoreClassNames =
   | 'resizerWrapper'
   | 'resizing'
   | 'richSelect'
-  | 'richSelectFieldInput'
   | 'richSelectList'
   | 'richSelectRow'
   | 'richSelectRowSelected'
@@ -609,15 +621,12 @@ export type MasterDetailClassNames =
 
 export type MenuClassNames =
   | 'contextMenuOpen'
-  | 'menu'
   | 'menuColumnSelect'
   | 'menuColumnSelectWrapper'
   | TabsComponent<'menu'>;
 
 export type MultiFilterClassNames =
-  | 'compactMenuOption'
   | 'filterSeparator'
-  | 'floatingFilterInput'
   | 'menuListCompact'
   | 'multiFilter'
   | 'multiFloatingFilter'
@@ -632,7 +641,8 @@ export type RangeSelectionClassNames =
   | 'selectionFillTop';
 
 export type RichSelectClassNames =
-  | 'cellEditWrapper';
+  | 'cellEditWrapper'
+  | 'richSelectFieldInput';
 
 export type RowGroupingClassNames =
   | 'columnDropCellButton'
@@ -642,10 +652,7 @@ export type RowGroupingClassNames =
   | 'columnDropEmpty'
   | 'columnDropHorizontalHalfWidth'
   | 'columnDropWrapper'
-  | 'columnSelectColumnReadonly'
-  | 'dragHandle'
   | 'filterSeparator'
-  | 'floatingFilterInput'
   | 'groupFilter'
   | 'groupFilterFieldSelectWrapper'
   | 'groupFloatingFilter'
@@ -657,7 +664,6 @@ export type RowGroupingClassNames =
 export type SetFilterClassNames =
   | 'filterLoading'
   | 'filterNoMatches'
-  | 'floatingFilterInput'
   | 'miniFilter'
   | 'setFilter'
   | 'setFilterAddGroupIndent'
@@ -674,8 +680,6 @@ export type SetFilterClassNames =
   | VirtualListComponent<'filter'>;
 
 export type SideBarClassNames =
-  | 'button'
-  | 'selected'
   | 'sideBar'
   | 'sideBarLeft'
   | 'sideBarRight'
@@ -706,32 +710,3 @@ export type StatusBarClassNames =
   | 'statusPanelTotalAndFilteredRowCount'
   | 'statusPanelTotalRowCount';
 
-type GroupComponent<T extends string> =
-  | `${T}Group`
-  | `${T}GroupItem`
-  | `${T}GroupTitleBar`
-  | `${T}GroupTitleBarIcon`
-  | `${T}GroupTitle`
-  | `${T}GroupToolbar`
-  | `${T}GroupContainer`;
-
-type ListComponent<T extends string> =
-  | `${T}List`
-  | `${T}ListItem`;
-
-type VirtualListComponent<T extends string> =
-  | `${T}VirtualListViewport`
-  | `${T}VirtualListContainer`
-  | `${T}VirtualListItem`;
-
-type PanelComponent<T extends string> =
-  | `${T}Panel`
-  | `${T}PanelTitleBar`
-  | `${T}PanelTitleBarTitle`
-  | `${T}PanelTitleBarButtons`
-  | `${T}PanelContentWrapper`;
-
-type TabsComponent<T extends string> =
-  | T
-  | `${T}Header`
-  | `${T}Body`
