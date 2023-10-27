@@ -32,7 +32,7 @@ const flattenNestedBlock = (rule: SubLevelRecord): StyleRule[] => {
     if (isPropertyValue(valueOrBlock) || isPropertyValueArray(valueOrBlock)) {
       // type checking should make it impossible to use a symbol as a key for property values
       if (typeof key === 'symbol') continue;
-      const property = toKebabCase(key);
+      const property = toKebabCase(key).replaceAll('always-', '');
       const value = isPropertyValueArray(valueOrBlock)
         ? valueOrBlock.map((v: PropertyValue) => v.css).join(' ')
         : valueOrBlock.css;

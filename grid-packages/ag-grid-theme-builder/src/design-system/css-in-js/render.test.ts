@@ -2,12 +2,12 @@ import { expect, test } from 'vitest';
 import { literal, px, solid } from '.';
 import { ColorExpression } from './color';
 import { joinSelectors, renderRules } from './render';
-import { rawSelectors, untypedSelectors } from './selectors';
+import { untypedSelectors } from './selectors';
 
-const a = rawSelectors('a');
-const b = rawSelectors('b');
-const c = rawSelectors('c');
-const d = rawSelectors('d');
+const a = untypedSelectors('a');
+const b = untypedSelectors('b');
+const c = untypedSelectors('c');
+const d = untypedSelectors('d');
 
 test(`Render a flat rule`, () => {
   expect(
@@ -104,7 +104,7 @@ test(`Render a 2-deep nested rule with & combiner after`, () => {
     renderRules({
       [a]: {
         [b]: {
-          [rawSelectors('c &')]: {
+          [untypedSelectors('c &')]: {
             color: blue,
           },
         },
@@ -122,7 +122,7 @@ test(`Render a 2-deep nested rule with & combiner in middle`, () => {
     renderRules({
       [a]: {
         [b]: {
-          [rawSelectors('c & x')]: {
+          [untypedSelectors('c & x')]: {
             color: blue,
           },
         },
@@ -146,7 +146,7 @@ test(`Render nested with intermediate declarations`, () => {
             color: blue,
           },
         },
-        [rawSelectors('c &')]: {
+        [untypedSelectors('c &')]: {
           color: purple,
           [d]: {
             color: pink,
@@ -195,21 +195,45 @@ test(`Render RTL rules`, () => {
   expect(
     renderRules({
       [a]: {
-        paddingLeading: px(1),
-        borderLeadingWidth: px(2),
-        leading: px(3),
+        leading: px(1),
+        trailing: px(2),
+        paddingLeading: px(3),
+        paddingTrailing: px(4),
+        borderLeadingWidth: px(5),
+        borderTrailingWidth: px(6),
+
+        alwaysLeft: px(7),
+        alwaysRight: px(8),
+        paddingAlwaysLeft: px(9),
+        paddingAlwaysRight: px(10),
+        borderAlwaysLeftWidth: px(11),
+        borderAlwaysRightWidth: px(12),
       },
     }),
   ).toMatchInlineSnapshot(`
-    ".ag-ltr a {
-    	padding-left: 1px;
-    	border-left-width: 2px;
-    	left: 3px;
+    "a {
+    	left: 7px;
+    	right: 8px;
+    	padding-left: 9px;
+    	padding-right: 10px;
+    	border-left-width: 11px;
+    	border-right-width: 12px;
+    }
+    .ag-ltr a {
+    	left: 1px;
+    	right: 2px;
+    	padding-left: 3px;
+    	padding-right: 4px;
+    	border-left-width: 5px;
+    	border-right-width: 6px;
     }
     .ag-rtl a {
-    	padding-right: 1px;
-    	border-right-width: 2px;
-    	right: 3px;
+    	right: 1px;
+    	right: 2px;
+    	padding-right: 3px;
+    	padding-right: 4px;
+    	border-right-width: 5px;
+    	border-right-width: 6px;
     }"
   `);
 });
