@@ -1,6 +1,6 @@
 type Sides = 'Top' | 'Bottom' | 'AlwaysLeft' | 'AlwaysRight' | 'Leading' | 'Trailing';
 
-type CssProperty =
+type Property =
   | 'alignItems'
   | 'alignSelf'
   | 'alwaysLeft'
@@ -11,17 +11,12 @@ type CssProperty =
   | 'animationName'
   | 'animationTimingFunction'
   | 'appearance'
-  | 'background'
   | 'backgroundColor'
   | 'backgroundImage'
   | 'backgroundPositionX'
   | 'backgroundPositionY'
   | 'backgroundRepeat'
   | 'backgroundSize'
-  | 'border'
-  | 'borderStyle'
-  | 'borderWidth'
-  | 'borderColor'
   | `border${Sides}`
   | `border${Sides}Style`
   | `border${Sides}Width`
@@ -36,7 +31,6 @@ type CssProperty =
   | 'cursor'
   | 'direction'
   | 'display'
-  | 'flex'
   | 'flexBasis'
   | 'flexDirection'
   | 'flexGrow'
@@ -51,7 +45,6 @@ type CssProperty =
   | 'justifyContent'
   | 'lineHeight'
   | 'leading'
-  | 'margin'
   | `margin${Sides}`
   | 'maxHeight'
   | 'maxWidth'
@@ -60,10 +53,8 @@ type CssProperty =
   | 'opacity'
   | 'order'
   | 'outline'
-  | 'overflow'
   | 'overflowX'
   | 'overflowY'
-  | 'padding'
   | `padding${Sides}`
   | 'pointerEvents'
   | 'position'
@@ -77,7 +68,6 @@ type CssProperty =
   | 'top'
   | 'trailing'
   | 'transform'
-  | 'transition'
   | 'transitionTimingFunction'
   | 'userSelect'
   | 'verticalAlign'
@@ -87,6 +77,16 @@ type CssProperty =
   | 'wordBreak'
   | 'writingMode'
   | 'zIndex';
+
+type ShorthandProperty = 'background' | 'flex' | 'overflow' | 'transition';
+
+type RtlSensitiveProperty =
+  | 'border'
+  | `borderStyle`
+  | 'borderWidth'
+  | 'borderColor'
+  | 'margin'
+  | 'padding';
 
 declare const propertyValueBrand: unique symbol;
 
@@ -100,7 +100,20 @@ export type CssPropertiesValue = PropertyValue | readonly PropertyValue[] | null
 
 export type CssProperties = Partial<
   {
-    readonly [K in CssProperty]: CssPropertiesValue;
+    readonly [K in Property]: PropertyValue | null | undefined;
+  } & {
+    readonly [K in ShorthandProperty]: PropertyValue | readonly PropertyValue[] | null | undefined;
+  } & {
+    readonly [K in RtlSensitiveProperty]:
+      | PropertyValue
+      | readonly [PropertyValue, PropertyValue]
+      | readonly [PropertyValue, PropertyValue, PropertyValue]
+      // we ban the 4-element e.g. for 'padding: 10px 20px 30px 40px' because
+      // it applies different left and right padding without being ltr
+      // sensitive. Instead it is required to use the rtl sensitive versions
+      // e.g. paddingLeading and paddingTrailing api
+      | null
+      | undefined;
   } & {
     /**
      * @deprecated Left and right properties are not supported, use e.g. paddingLeading and paddingTrailing if you need to reverse the size in right-to-left mode (you normally do), and paddingAlwaysLeft / paddingAlwaysRight

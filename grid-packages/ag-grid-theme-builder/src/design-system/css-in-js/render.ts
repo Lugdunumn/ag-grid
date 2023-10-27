@@ -1,6 +1,6 @@
 import { convertClassNamesInSelector, getSelectors } from '.';
 import { PropertyValue } from './types/CssProperties';
-import { SubLevelRecord, TopLevelRules } from './types/Rules';
+import { SelectorRecord, TopLevelRules } from './types/Rules';
 import { toKebabCase } from './utils';
 
 export const renderRules = (nestedRules: TopLevelRules): string => {
@@ -22,7 +22,7 @@ export const renderRules = (nestedRules: TopLevelRules): string => {
 };
 
 // flatten a block that can contain declarations e.g. 'color: red' or nested blocks
-const flattenNestedBlock = (rule: SubLevelRecord): StyleRule[] => {
+const flattenNestedBlock = (rule: SelectorRecord): StyleRule[] => {
   const blockDeclarations: Declaration[] = [];
   const ltrDeclarations: Declaration[] = [];
   const result: StyleRule[] = [];

@@ -2,8 +2,7 @@ import { CssProperties, CssPropertiesValue } from './CssProperties';
 import { GridClassNames } from './GridClassNames';
 
 export type TopLevelRules = SelectorRules & {
-  // TODO implement media rules
-  //   '@media'?: MediaValue;
+  // '@media'?: MediaValue;
 };
 
 export type Selector = GridClassNames | PseudoClassSelector | PseudoElementSelector;
@@ -16,7 +15,7 @@ export type SelectorRules = {
   readonly [key: symbol]: SelectorValue;
 };
 
-export type SubLevelRecord = Readonly<Record<string | symbol, SelectorValue | CssPropertiesValue>>;
+export type SelectorRecord = Readonly<Record<string | symbol, SelectorValue | CssPropertiesValue>>;
 
 type PseudoClass =
   | ':active'
