@@ -102,7 +102,12 @@ export type CssProperties = Partial<
   {
     readonly [K in Property]: PropertyValue | null | undefined;
   } & {
-    readonly [K in ShorthandProperty]: PropertyValue | readonly PropertyValue[] | null | undefined;
+    readonly [K in ShorthandProperty]:
+      | PropertyValue
+      // array with at least one element
+      | [PropertyValue, ...PropertyValue[]]
+      | null
+      | undefined;
   } & {
     readonly [K in RtlSensitiveProperty]:
       | PropertyValue
