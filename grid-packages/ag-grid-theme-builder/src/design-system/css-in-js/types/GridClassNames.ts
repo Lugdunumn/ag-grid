@@ -710,3 +710,20 @@ export type StatusBarClassNames =
   | 'statusPanelTotalAndFilteredRowCount'
   | 'statusPanelTotalRowCount';
 
+export type GridClassNames =
+  | AdvancedFilterClassNames
+  | ChartsClassNames
+  | ColumnToolPanelClassNames
+  | CoreClassNames
+  | FilterToolPanelClassNames
+  | MasterDetailClassNames
+  | MenuClassNames
+  | MultiFilterClassNames
+  | RangeSelectionClassNames
+  | RichSelectClassNames
+  | RowGroupingClassNames
+  | SetFilterClassNames
+  | SideBarClassNames
+  | SparklinesClassNames
+  | StatusBarClassNames;
+

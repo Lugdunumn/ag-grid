@@ -1,5 +1,3 @@
-import { PropertyValue } from './rules';
-
 type Sides = 'Top' | 'Bottom' | 'AlwaysLeft' | 'AlwaysRight' | 'Leading' | 'Trailing';
 
 type CssProperty =
@@ -90,9 +88,15 @@ type CssProperty =
   | 'writingMode'
   | 'zIndex';
 
+export type PropertyValue = {
+  readonly css: string;
+};
+
+export type CssPropertiesValue = PropertyValue | ReadonlyArray<PropertyValue> | null | undefined;
+
 export type CssProperties = Partial<
   {
-    [K in CssProperty]: PropertyValue;
+    readonly [K in CssProperty]: CssPropertiesValue;
   } & {
     /**
      * @deprecated Left and right properties are not supported, use e.g. paddingLeading and paddingTrailing if you need to reverse the size in right-to-left mode (you normally do), and paddingAlwaysLeft / paddingAlwaysRight
@@ -155,31 +159,3 @@ export type CssProperties = Partial<
     borderRightColor: never;
   }
 >;
-
-type CssPseudoElement =
-  | ':active'
-  | ':disabled'
-  | ':first-child'
-  | ':focus'
-  | ':focus-visible'
-  | ':focus-within'
-  | ':hover'
-  | ':invalid'
-  | ':last-child';
-
-export type CssPseudoElementSelector = `&${CssPseudoElement}` | `&:not(${CssPseudoElement})`;
-
-export type CssPseudoClassSelector =
-  | '&::-moz-ag-range-thumb'
-  | '&::-moz-ag-range-track'
-  | '&::-moz-range-track'
-  | '&::-ms-thumb'
-  | '&::-ms-track'
-  | '&::-webkit-inner-spin-button'
-  | '&::-webkit-outer-spin-button'
-  | '&::-webkit-scrollbar'
-  | '&::-webkit-slider-runnable-track'
-  | '&::-webkit-slider-thumb'
-  | '&::after'
-  | '&::before'
-  | '&::placeholder';

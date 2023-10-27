@@ -2,11 +2,16 @@ import { expect, test } from 'vitest';
 import { literal, px, solid } from '.';
 import { ColorExpression } from './color';
 import { joinSelectors, renderRules } from './render';
+import { untypedSelectors } from './selectors';
+
+const a = untypedSelectors('a');
+const b = untypedSelectors('b');
+const c = untypedSelectors('c');
 
 test(`Render a flat rule`, () => {
   expect(
     renderRules({
-      a: {
+      [a]: {
         color: red,
         backgroundColor: green,
       },
@@ -22,7 +27,7 @@ test(`Render a flat rule`, () => {
 test(`Render a compound property value`, () => {
   expect(
     renderRules({
-      a: {
+      [a]: {
         border: [solid, px(1), red],
       },
     }),
@@ -36,12 +41,12 @@ test(`Render a compound property value`, () => {
 test(`Render a nested rule`, () => {
   expect(
     renderRules({
-      a: {
+      [a]: {
         color: red,
-        b: {
+        [b]: {
           color: blue,
           backgroundColor: green,
-          c: {
+          [c]: {
             color: purple,
           },
         },
@@ -64,7 +69,7 @@ test(`Render a nested rule`, () => {
 test(`Render a nested rule with & combiner before`, () => {
   expect(
     renderRules({
-      a: {
+      [a]: {
         '&:hover': {
           color: blue,
         },
@@ -80,8 +85,8 @@ test(`Render a nested rule with & combiner before`, () => {
 test(`Render a 1-deep nested rule with & combiner after`, () => {
   expect(
     renderRules({
-      a: {
-        'b &': {
+      [a]: {
+        [untypedSelectors('b &')]: {
           color: blue,
         },
       },
@@ -96,9 +101,9 @@ test(`Render a 1-deep nested rule with & combiner after`, () => {
 test(`Render a 2-deep nested rule with & combiner after`, () => {
   expect(
     renderRules({
-      a: {
-        b: {
-          'c &': {
+      [a]: {
+        [b]: {
+          [untypedSelectors('c &')]: {
             color: blue,
           },
         },
@@ -114,9 +119,9 @@ test(`Render a 2-deep nested rule with & combiner after`, () => {
 test(`Render a 2-deep nested rule with & combiner in middle`, () => {
   expect(
     renderRules({
-      a: {
-        b: {
-          'c & x': {
+      [a]: {
+        [b]: {
+          [untypedSelectors('c & x')]: {
             color: blue,
           },
         },
@@ -132,17 +137,17 @@ test(`Render a 2-deep nested rule with & combiner in middle`, () => {
 test(`Render nested with intermediate declarations`, () => {
   expect(
     renderRules({
-      a: {
+      [a]: {
         color: red,
-        b: {
+        [b]: {
           color: green,
-          '&:before': {
+          '&::before': {
             color: blue,
           },
         },
-        '.rtl &': {
+        [untypedSelectors('.rtl &')]: {
           color: purple,
-          foo: {
+          [c]: {
             color: pink,
           },
         },
@@ -161,7 +166,7 @@ test(`Render nested with intermediate declarations`, () => {
     .ag-rtl a {
     	color: purple;
     }
-    .ag-rtl a .ag-foo {
+    .ag-rtl a c {
     	color: pink;
     }"
   `);
@@ -188,7 +193,7 @@ test(joinSelectors, () => {
 test(`Render RTL rules`, () => {
   expect(
     renderRules({
-      a: {
+      [a]: {
         paddingLeading: px(1),
         borderLeadingWidth: px(2),
         leading: px(3),
@@ -211,7 +216,7 @@ test(`Render RTL rules`, () => {
 test(`RTL rules don't apply to property names`, () => {
   expect(
     renderRules({
-      leading: {
+      [untypedSelectors('leading')]: {
         color: red,
       },
     }),
@@ -225,10 +230,10 @@ test(`RTL rules don't apply to property names`, () => {
 test(`Render RTL nested`, () => {
   expect(
     renderRules({
-      a: {
+      [a]: {
         color: red,
         marginLeading: px(1),
-        b: {
+        [b]: {
           color: green,
           leading: px(2),
         },
@@ -259,66 +264,66 @@ test(`Render RTL nested`, () => {
 test(`Convert camelCase to .ag-kebab-case class names`, () => {
   expect(
     renderRules({
-      'one, oneTwo, three:not(fourFive)': {
-        bar: literal('converted'),
+      [untypedSelectors('one', 'oneTwo', 'three:not(fourFive)')]: {
+        content: literal('converted'),
       },
-      'ag-grid, ::before, :not(:first-child)': {
-        bar: literal('not converted'),
+      [untypedSelectors('ag-grid', '::before', ':not(:first-child)')]: {
+        content: literal('not converted'),
       },
     }),
   ).toMatchInlineSnapshot(`
     ".ag-one,
     .ag-one-two,
     .ag-three:not(.ag-four-five) {
-    	bar: converted;
+    	content: converted;
     }
     ag-grid,
     ::before,
     :not(:first-child) {
-    	bar: not converted;
+    	content: not converted;
     }"
   `);
 });
 
-test(`Render @keyframes blocks`, () => {
-  expect(
-    renderRules({
-      '@keyframes fooBar': {
-        from: {
-          color: red,
-        },
-        to: {
-          color: blue,
-        },
-      },
-    }),
-  ).toMatchInlineSnapshot(`
-    "@keyframes foo-bar {
-    	from {
-    		color: red;
-    	}
-    	to {
-    		color: blue;
-    	}
-    }"
-  `);
-});
+// test(`Render @keyframes blocks`, () => {
+//   expect(
+//     renderRules({
+//       '@keyframes fooBar': {
+//         from: {
+//           color: red,
+//         },
+//         to: {
+//           color: blue,
+//         },
+//       },
+//     }),
+//   ).toMatchInlineSnapshot(`
+//     "@keyframes foo-bar {
+//     	from {
+//     		color: red;
+//     	}
+//     	to {
+//     		color: blue;
+//     	}
+//     }"
+//   `);
+// });
 
-test(`Render @font-face blocks`, () => {
-  expect(
-    renderRules({
-      '@font-face': {
-        fontFamily: literal('monospace'),
-        src: literal('url(./some-url)'),
-      },
-    }),
-  ).toMatchInlineSnapshot(`
-    "@font-face {
-    	font-family: monospace;
-    	src: url(./some-url);
-    }"
-  `);
-});
+// test(`Render @font-face blocks`, () => {
+//   expect(
+//     renderRules({
+//       '@font-face': {
+//         fontFamily: literal('monospace'),
+//         src: literal('url(./some-url)'),
+//       },
+//     }),
+//   ).toMatchInlineSnapshot(`
+//     "@font-face {
+//     	font-family: monospace;
+//     	src: url(./some-url);
+//     }"
+//   `);
+// });
 
 // TODO also @media and @font-face
 

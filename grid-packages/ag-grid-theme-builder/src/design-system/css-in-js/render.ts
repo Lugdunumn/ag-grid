@@ -1,7 +1,8 @@
-import { Block, BlockValue, PropertyValue, Rules } from './rules';
+import { PropertyValue } from './types/CssProperties';
+import { SubLevelRecord, TopLevelRules } from './types/Rules';
 import { toKebabCase } from './utils';
 
-export const renderRules = (nestedRules: Rules): string => {
+export const renderRules = (nestedRules: TopLevelRules): string => {
   const rules = flattenNestedBlock(nestedRules);
   const result: string[] = [];
   for (const { selectors, declarations } of rules) {
@@ -20,7 +21,7 @@ export const renderRules = (nestedRules: Rules): string => {
 };
 
 // flatten a block that can contain declarations e.g. 'color: red' or nested blocks
-const flattenNestedBlock = (rule: Block): StyleRule[] => {
+const flattenNestedBlock = (rule: SubLevelRecord): StyleRule[] => {
   const blockDeclarations: Declaration[] = [];
   const ltrDeclarations: Declaration[] = [];
   const result: StyleRule[] = [];
@@ -68,10 +69,10 @@ const flattenNestedBlock = (rule: Block): StyleRule[] => {
   return result;
 };
 
-const isPropertyValue = (value: BlockValue): value is PropertyValue =>
+const isPropertyValue = (value: unknown): value is PropertyValue =>
   value instanceof Object && 'css' in value && typeof value.css === 'string';
 
-const isPropertyValueArray = (value: BlockValue): value is ReadonlyArray<PropertyValue> =>
+const isPropertyValueArray = (value: unknown): value is ReadonlyArray<PropertyValue> =>
   Array.isArray(value);
 
 // Combine StyleRules with one or more parent selectors, using a

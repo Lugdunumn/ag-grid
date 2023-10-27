@@ -11,15 +11,22 @@ import {
   normal,
   one,
   percent,
-  px,
   relative,
   rules,
   seconds,
+  selectors,
+  untypedSelectors,
   zero,
 } from 'design-system/css-in-js';
 
 export const generalStructuralStyles = rules({
-  'ag-grid, ag-grid-angular, ag-grid-ng2, ag-grid-polymer, ag-grid-aurelia': {
+  [untypedSelectors(
+    'ag-grid',
+    'ag-grid-angular',
+    'ag-grid-ng2',
+    'ag-grid-polymer',
+    'ag-grid-aurelia',
+  )]: {
     display: block,
   },
   hidden: {
@@ -68,7 +75,7 @@ export const generalStructuralStyles = rules({
     position: absolute,
   },
 
-  'inputWrapper, pickerFieldWrapper': {
+  [selectors('inputWrapper', 'pickerFieldWrapper')]: {
     display: flex,
     flex: [one, one, auto],
     alignItems: center,
@@ -85,15 +92,16 @@ export const generalStructuralStyles = rules({
     animationName: literal('ag-shake-left-to-right'),
   },
 
-  '@keyframes ag-shake-left-to-right': {
-    from: {
-      paddingLeft: px(6),
-      paddingRight: px(2),
-    },
+  // TODO restore @keyframes
+  // '@keyframes ag-shake-left-to-right': {
+  //   from: {
+  //     paddingLeft: px(6),
+  //     paddingRight: px(2),
+  //   },
 
-    to: {
-      paddingLeft: px(2),
-      paddingRight: px(6),
-    },
-  },
+  //   to: {
+  //     paddingLeft: px(2),
+  //     paddingRight: px(6),
+  //   },
+  // },
 });

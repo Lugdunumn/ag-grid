@@ -6,6 +6,8 @@
  * Overrides can be added at the end of this file It's not 100% there, you can You can add overrides at the bottom
  */
 
+const outputFile = './src/design-system/css-in-js/types/GridClassNames.ts';
+
 // class names that should never be emitted as types
 const ignoreClassNames = new Set([
   'ag-ltr',
@@ -184,26 +186,32 @@ const main = async () => {
   };
 
   const emit = async () => {
-    const dstFile = path.resolve('./src/design-system/css-in-js/GridClassNames.ts');
     let content = '';
-    for (const type of Object.keys(result).sort()) {
-      const classes = additionalUnionEntries[type] || [];
-      const values = Array.from(result[type].values()).sort();
+    const emittedTypeNames: string[] = [];
+    for (const module of Object.keys(result).sort()) {
+      const tsExtras = additionalUnionEntries[module] || [];
+      const values = Array.from(result[module].values()).sort();
       if (values.length === 0) continue;
+      const typeName = module + 'ClassNames';
+      emittedTypeNames.push(typeName);
       const union = values
         .map(classNameToCamelCase)
-        .map((name) => `'${name}'`)
-        .concat(classes)
-        .map((name) => `\n  | ${name}`)
+        .map((str) => `'${str}'`)
+        .concat(tsExtras)
+        .map((ts) => `\n  | ${ts}`)
         .join('');
-      content += `export type ${type}ClassNames =${union};\n\n`;
+      content += `export type ${module}ClassNames =${union};\n\n`;
     }
+    content +=
+      `export type GridClassNames =` +
+      emittedTypeNames.map((type) => `\n  | ${type}`).join('') +
+      ';\n\n';
     if (content.includes('-')) {
       throw new Error(
         'Content includes hyphen, you probably used an ag-class-name parameter instead of an className one.',
       );
     }
-    await fs.writeFile(dstFile, beforeMatter + content, 'utf8');
+    await fs.writeFile(path.resolve(__dirname, outputFile), beforeMatter + content, 'utf8');
   };
 
   await scanPackages('../../grid-community-modules');
