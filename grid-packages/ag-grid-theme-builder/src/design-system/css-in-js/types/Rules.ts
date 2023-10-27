@@ -1,4 +1,4 @@
-import { CssProperties, CssPropertiesValue } from './CssProperties';
+import { CssProperties, CssPropertiesValue, PropertyValue } from './CssProperties';
 import { GridClassNames } from './GridClassNames';
 
 export type TopLevelRules = SelectorRules & {
@@ -16,7 +16,10 @@ export type SelectorRules = {
   readonly [key: symbol]: SelectorValue;
 };
 
-export type SubLevelRecord = Readonly<Record<string, SelectorValue | CssPropertiesValue>>;
+const pv: PropertyValue = { css: '' };
+export const value: SelectorValue = pv;
+
+export type SubLevelRecord = Readonly<Record<string | symbol, SelectorValue | CssPropertiesValue>>;
 
 type PseudoClass =
   | ':active'

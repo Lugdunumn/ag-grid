@@ -115,7 +115,7 @@ const Wrapper = styled('div')`
   height: 100%;
 `;
 
-const buildGridOptions = (features: ReadonlyArray<Feature>): GridOptions => {
+const buildGridOptions = (features: readonly Feature[]): GridOptions => {
   const defaultColDef: ColDef = {
     sortable: true,
   };

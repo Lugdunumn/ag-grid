@@ -18,7 +18,7 @@ export const mapPresentObjectValues = <T, U>(
   );
 
 export const indexBy = <T, K extends keyof T>(
-  items: ReadonlyArray<T>,
+  items: readonly T[],
   keyProperty: K,
 ): Record<string, T> =>
   Object.fromEntries(items.map((item): [string, T] => [String(item[keyProperty]), item]));

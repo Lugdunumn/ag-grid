@@ -156,9 +156,9 @@ const deserializeSchemeValue = (key: string, value: unknown): SchemeOption => {
   return option;
 };
 
-const serializeEnabledFeatures = (features: ReadonlyArray<Feature>) => features.map((f) => f.name);
+const serializeEnabledFeatures = (features: readonly Feature[]) => features.map((f) => f.name);
 
-const deserializeEnabledFeatures = (featureNames: unknown): ReadonlyArray<Feature> => {
+const deserializeEnabledFeatures = (featureNames: unknown): readonly Feature[] => {
   if (!Array.isArray(featureNames)) {
     throw new Error('expected array');
   }

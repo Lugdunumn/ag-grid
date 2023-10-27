@@ -2,11 +2,12 @@ import { expect, test } from 'vitest';
 import { literal, px, solid } from '.';
 import { ColorExpression } from './color';
 import { joinSelectors, renderRules } from './render';
-import { untypedSelectors } from './selectors';
+import { rawSelectors, untypedSelectors } from './selectors';
 
-const a = untypedSelectors('a');
-const b = untypedSelectors('b');
-const c = untypedSelectors('c');
+const a = rawSelectors('a');
+const b = rawSelectors('b');
+const c = rawSelectors('c');
+const d = rawSelectors('d');
 
 test(`Render a flat rule`, () => {
   expect(
@@ -103,7 +104,7 @@ test(`Render a 2-deep nested rule with & combiner after`, () => {
     renderRules({
       [a]: {
         [b]: {
-          [untypedSelectors('c &')]: {
+          [rawSelectors('c &')]: {
             color: blue,
           },
         },
@@ -121,7 +122,7 @@ test(`Render a 2-deep nested rule with & combiner in middle`, () => {
     renderRules({
       [a]: {
         [b]: {
-          [untypedSelectors('c & x')]: {
+          [rawSelectors('c & x')]: {
             color: blue,
           },
         },
@@ -145,9 +146,9 @@ test(`Render nested with intermediate declarations`, () => {
             color: blue,
           },
         },
-        [untypedSelectors('.rtl &')]: {
+        [rawSelectors('c &')]: {
           color: purple,
-          [c]: {
+          [d]: {
             color: pink,
           },
         },
@@ -160,13 +161,13 @@ test(`Render nested with intermediate declarations`, () => {
     a b {
     	color: green;
     }
-    a b:before {
+    a b::before {
     	color: blue;
     }
-    .ag-rtl a {
+    c a {
     	color: purple;
     }
-    .ag-rtl a c {
+    c a d {
     	color: pink;
     }"
   `);

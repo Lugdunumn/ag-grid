@@ -3,7 +3,7 @@ import { Scheme } from './Scheme';
 import { chromeColorScheme } from './chromeColorScheme';
 import { colorTemperatureScheme } from './colorTemperatureScheme';
 
-export const allSchemes: ReadonlyArray<Scheme> = [chromeColorScheme, colorTemperatureScheme];
+export const allSchemes: readonly Scheme[] = [chromeColorScheme, colorTemperatureScheme];
 
 const schemesByName = indexBy(allSchemes, 'name');
 

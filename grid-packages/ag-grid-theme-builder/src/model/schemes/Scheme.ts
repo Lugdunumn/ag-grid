@@ -6,7 +6,7 @@ export class Scheme {
 
   constructor(
     readonly name: string,
-    readonly options: ReadonlyArray<SchemeOption>,
+    readonly options: readonly SchemeOption[],
   ) {
     this.label = titleCase(name);
   }

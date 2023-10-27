@@ -92,7 +92,7 @@ export type PropertyValue = {
   readonly css: string;
 };
 
-export type CssPropertiesValue = PropertyValue | ReadonlyArray<PropertyValue> | null | undefined;
+export type CssPropertiesValue = PropertyValue | readonly PropertyValue[] | null | undefined;
 
 export type CssProperties = Partial<
   {

@@ -24,12 +24,12 @@ type CalcExtension<L extends CalcPart[], R extends CalcPart[]> = R extends []
   : never;
 
 export class CalcExpression extends Expression {
-  constructor(readonly parts: ReadonlyArray<CalcPart>) {
+  constructor(readonly parts: readonly CalcPart[]) {
     super(calcCss(parts, false));
   }
 }
 
-const calcCss = (parts: ReadonlyArray<CalcPart>, nested: boolean): string =>
+const calcCss = (parts: readonly CalcPart[], nested: boolean): string =>
   (nested ? '(' : 'calc(') +
   parts
     .map((part): string => {

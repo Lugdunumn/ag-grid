@@ -1,3 +1,4 @@
+import { convertClassNamesInSelector, getSelectors } from '.';
 import { PropertyValue } from './types/CssProperties';
 import { SubLevelRecord, TopLevelRules } from './types/Rules';
 import { toKebabCase } from './utils';
@@ -25,9 +26,12 @@ const flattenNestedBlock = (rule: SubLevelRecord): StyleRule[] => {
   const blockDeclarations: Declaration[] = [];
   const ltrDeclarations: Declaration[] = [];
   const result: StyleRule[] = [];
-  for (const [key, valueOrBlock] of Object.entries(rule)) {
+  for (const key of Reflect.ownKeys(rule)) {
+    const valueOrBlock = rule[key];
     if (valueOrBlock == null) continue;
     if (isPropertyValue(valueOrBlock) || isPropertyValueArray(valueOrBlock)) {
+      // type checking should make it impossible to use a symbol as a key for property values
+      if (typeof key === 'symbol') continue;
       const property = toKebabCase(key);
       const value = isPropertyValueArray(valueOrBlock)
         ? valueOrBlock.map((v: PropertyValue) => v.css).join(' ')
@@ -42,9 +46,9 @@ const flattenNestedBlock = (rule: SubLevelRecord): StyleRule[] => {
         blockDeclarations.push({ property, value });
       }
     } else {
-      result.push(
-        ...joinParentSelectors(parseSelectorsString(key), flattenNestedBlock(valueOrBlock)),
-      );
+      const selectors =
+        typeof key === 'symbol' ? getSelectors(key) : [convertClassNamesInSelector(key)];
+      result.push(...joinParentSelectors(selectors, flattenNestedBlock(valueOrBlock)));
     }
   }
   if (ltrDeclarations.length > 0) {
@@ -72,12 +76,15 @@ const flattenNestedBlock = (rule: SubLevelRecord): StyleRule[] => {
 const isPropertyValue = (value: unknown): value is PropertyValue =>
   value instanceof Object && 'css' in value && typeof value.css === 'string';
 
-const isPropertyValueArray = (value: unknown): value is ReadonlyArray<PropertyValue> =>
+const isPropertyValueArray = (value: unknown): value is readonly PropertyValue[] =>
   Array.isArray(value);
 
 // Combine StyleRules with one or more parent selectors, using a
 // https://en.wikipedia.org/wiki/Cartesian_product
-const joinParentSelectors = (parentSelectors: string[], styleRules: StyleRule[]): StyleRule[] => {
+const joinParentSelectors = (
+  parentSelectors: readonly string[],
+  styleRules: readonly StyleRule[],
+): readonly StyleRule[] => {
   return styleRules.map(({ selectors, declarations }): StyleRule => {
     const selectorProduct = parentSelectors.flatMap((parentSelector) =>
       selectors.map((selector) => joinSelectors(parentSelector, selector)),
@@ -106,31 +113,6 @@ export const joinSelectors = (a: string, b: string): string => {
 
   return b.replaceAll('&', a);
 };
-
-const parseSelectorsString = (input: string) => {
-  input = input.trim();
-  if (input.startsWith('@')) return [input];
-  return input
-    .trim()
-    .replaceAll(/((?<![\w"'@[:-])[a-z]+|\.[a-z]+)(?![a-z-])/gi, mapElementsToClassNames)
-    .split(/\s*,\s*/);
-};
-
-// someClass -> .ag-some-class
-const mapElementsToClassNames = (element: string): string => {
-  if (knownElements.has(element) || element.length === 1) return element;
-  if (element.startsWith('.')) {
-    element = element.substring(1);
-  }
-  return '.ag-' + toKebabCase(element);
-};
-
-// TODO embed a much smaller set of elements that we actually use
-const knownElements = new Set(
-  'a abbr address area article aside audio b base bdi bdo blockquote body br button canvas caption cite code col colgroup command datalist dd del details dfn div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link map mark menu meta meter nav noscript object ol optgroup option output p param pre progress q rp rt ruby s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(
-    ' ',
-  ),
-);
 
 // A flattened CSS style rule e.g. `.a, .b, { color: red; }`
 interface StyleRule {
