@@ -1,4 +1,4 @@
-import { CssProperties, CssPropertiesValue, PropertyValue } from './CssProperties';
+import { CssProperties, CssPropertiesValue } from './CssProperties';
 import { GridClassNames } from './GridClassNames';
 
 export type TopLevelRules = SelectorRules & {
@@ -15,9 +15,6 @@ export type SelectorRules = {
   // symbols support {[selectors("foo")]: value} syntax
   readonly [key: symbol]: SelectorValue;
 };
-
-const pv: PropertyValue = { css: '' };
-export const value: SelectorValue = pv;
 
 export type SubLevelRecord = Readonly<Record<string | symbol, SelectorValue | CssPropertiesValue>>;
 

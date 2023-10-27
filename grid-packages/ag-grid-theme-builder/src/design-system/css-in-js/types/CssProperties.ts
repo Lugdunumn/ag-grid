@@ -88,8 +88,12 @@ type CssProperty =
   | 'writingMode'
   | 'zIndex';
 
+declare const propertyValueBrand: unique symbol;
+
 export type PropertyValue = {
   readonly css: string;
+  // this prevents PropertyValue from being assigned to a SelectorValue e.g. {rootWrapper: rgb()}
+  readonly [propertyValueBrand]?: true;
 };
 
 export type CssPropertiesValue = PropertyValue | readonly PropertyValue[] | null | undefined;
