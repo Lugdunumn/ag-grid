@@ -94,7 +94,7 @@ export const generalStructuralStyles = rules({
   },
 
   '@keyframes': {
-    animationName: 'ag-shake-left-to-right',
+    id: 'ag-shake-left-to-right',
     from: {
       paddingAlwaysLeft: px(6),
       paddingAlwaysRight: px(2),
