@@ -23,8 +23,15 @@ const convertFile = (srcPath: string) => {
     'utf8',
   );
   const parsed = scss.parse(source);
-  // console.log(parsed);
-  console.log(JSON.stringify(parsed, null, '    '));
+  for (const node of parsed.value) {
+    visitNode(node);
+  }
+};
+
+const visitNode = (node: any) => {
+  if (node.type === 'space') return;
+  if (node.type === 'atrule' && node.value[0].value === 'use') return;
+  console.log(node);
 };
 
 convertFile('internal/base/parts/_common-structural.scss');
