@@ -1,12 +1,18 @@
 import { convertClassNamesInSelector, getSelectors } from '.';
 import { PropertyValue } from './types/CssProperties';
-import { SelectorRecord, TopLevelRules } from './types/Rules';
+import { AtRules, SelectorRecord, SelectorRules, TopLevelRules } from './types/Rules';
 import { toKebabCase } from './utils';
 
-export const renderRules = (nestedRules: TopLevelRules): string => {
-  const rules = flattenNestedBlock(nestedRules);
+export const renderRules = (rules: TopLevelRules): string => {
+  const selectorRules: SelectorRules = {};
+  const atRules: AtRules = {};
+  for (const key of Reflect.ownKeys(rules)) {
+    const isAtRule = typeof key === 'string' && key.startsWith('@');
+    const destination: any = isAtRule ? atRules : selectorRules;
+    destination[key] = (rules as any)[key];
+  }
   const result: string[] = [];
-  for (const { selectors, declarations } of rules) {
+  for (const { selectors, declarations } of flattenNestedBlock(selectorRules)) {
     if (declarations.length === 0 || selectors.length === 0) continue;
     const selectorsWithoutAmpersands = selectors
       .join(',\n')

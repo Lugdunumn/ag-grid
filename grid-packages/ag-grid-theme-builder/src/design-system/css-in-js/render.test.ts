@@ -310,29 +310,30 @@ test(`Convert camelCase to .ag-kebab-case class names`, () => {
   `);
 });
 
-// test(`Render @keyframes blocks`, () => {
-//   expect(
-//     renderRules({
-//       '@keyframes fooBar': {
-//         from: {
-//           color: red,
-//         },
-//         to: {
-//           color: blue,
-//         },
-//       },
-//     }),
-//   ).toMatchInlineSnapshot(`
-//     "@keyframes foo-bar {
-//     	from {
-//     		color: red;
-//     	}
-//     	to {
-//     		color: blue;
-//     	}
-//     }"
-//   `);
-// });
+test(`Render @keyframes blocks`, () => {
+  expect(
+    renderRules({
+      '@keyframes': {
+        animationName: 'foo-bar',
+        from: {
+          color: red,
+        },
+        to: {
+          color: blue,
+        },
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    "@keyframes foo-bar {
+    	from {
+    		color: red;
+    	}
+    	to {
+    		color: blue;
+    	}
+    }"
+  `);
+});
 
 // test(`Render @font-face blocks`, () => {
 //   expect(

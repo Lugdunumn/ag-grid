@@ -11,6 +11,7 @@ import {
   normal,
   one,
   percent,
+  px,
   relative,
   rules,
   seconds,
@@ -92,16 +93,15 @@ export const generalStructuralStyles = rules({
     animationName: literal('ag-shake-left-to-right'),
   },
 
-  // TODO restore @keyframes
-  // '@keyframes ag-shake-left-to-right': {
-  //   from: {
-  //     paddingLeft: px(6),
-  //     paddingRight: px(2),
-  //   },
-
-  //   to: {
-  //     paddingLeft: px(2),
-  //     paddingRight: px(6),
-  //   },
-  // },
+  '@keyframes': {
+    animationName: 'ag-shake-left-to-right',
+    from: {
+      paddingAlwaysLeft: px(6),
+      paddingAlwaysRight: px(2),
+    },
+    to: {
+      paddingAlwaysLeft: px(2),
+      paddingAlwaysRight: px(6),
+    },
+  },
 });

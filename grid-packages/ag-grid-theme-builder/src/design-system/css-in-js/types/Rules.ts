@@ -1,9 +1,7 @@
 import { CssProperties, CssPropertiesValue } from './CssProperties';
 import { GridClassNames } from './GridClassNames';
 
-export type TopLevelRules = SelectorRules & {
-  // '@media'?: MediaValue;
-};
+export type TopLevelRules = SelectorRules & AtRules;
 
 export type Selector = GridClassNames | PseudoClassSelector | PseudoElementSelector;
 export type SelectorValue = (CssProperties & SelectorRules) | null | undefined;
@@ -44,3 +42,13 @@ export type PseudoElementSelector =
   | '&::after'
   | '&::before'
   | '&::placeholder';
+
+export type AtRules = {
+  '@keyframes'?: MediaValue;
+};
+
+export type MediaValue = {
+  animationName: string;
+  from: CssProperties;
+  to: CssProperties;
+};

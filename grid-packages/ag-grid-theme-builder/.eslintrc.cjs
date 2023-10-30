@@ -23,7 +23,6 @@ module.exports = {
     'react/prop-types': 'off',
     'no-console': 'warn',
     '@typescript-eslint/require-await': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
     'no-restricted-imports': [
       'error',
@@ -31,6 +30,10 @@ module.exports = {
         patterns: ['*/css-in-js/*'],
       },
     ],
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    '@typescript-eslint/no-unsafe-argument ': 'off',
+    '@typescript-eslint/no-unsafe-assignment': 'off',
   },
   settings: {
     react: {
