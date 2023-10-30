@@ -1,30 +1,82 @@
 import { convertClassNamesInSelector, getSelectors } from '.';
-import { PropertyValue } from './types/CssProperties';
-import { AtRules, SelectorRecord, SelectorRules, TopLevelRules } from './types/Rules';
+import { CssPropertiesRecord, PropertyValue } from './types/CssProperties';
+import { KeyframesRule, MediaRule, SelectorRecord, TopLevelRules } from './types/Rules';
 import { toKebabCase } from './utils';
 
 export const renderRules = (rules: TopLevelRules): string => {
-  const selectorRules: SelectorRules = {};
-  const atRules: AtRules = {};
+  const output: string[] = [];
   for (const key of Reflect.ownKeys(rules)) {
-    const isAtRule = typeof key === 'string' && key.startsWith('@');
-    const destination: any = isAtRule ? atRules : selectorRules;
-    destination[key] = (rules as any)[key];
+    switch (key) {
+      case '@keyframes':
+        emitKeyframes(rules['@keyframes'], output);
+        break;
+      case '@font-face':
+        emitNested('@font-face', rules, output);
+        break;
+      case '@media':
+        emitMedia(rules['@media'], output);
+        break;
+      default:
+        emitNested(key, rules, output);
+    }
   }
-  const result: string[] = [];
-  for (const { selectors, declarations } of flattenNestedBlock(selectorRules)) {
+  return output.join('').trim();
+};
+
+const emitNested = (key: string | symbol, rules: SelectorRecord, output: string[], indent = '') => {
+  // TODO check whether this is a performance bottleneck, and if so switch from flattening the nested blocks to traversing and emitting
+  const flat = flattenNestedBlock({
+    [key]: rules[key],
+  });
+  for (const { selectors, declarations } of flat) {
     if (declarations.length === 0 || selectors.length === 0) continue;
     const selectorsWithoutAmpersands = selectors
       .join(',\n')
       .replaceAll(/ & |& | &/g, ' ')
       .replaceAll('&', '');
-    result.push(selectorsWithoutAmpersands, ' {\n');
+    output.push(indent, selectorsWithoutAmpersands, ' {\n');
     for (const { property, value } of declarations) {
-      result.push('\t', property, ': ', value, ';\n');
+      output.push(indent, '\t', property, ': ', value, ';\n');
     }
-    result.push('}\n');
+    output.push(indent, '}\n');
   }
-  return result.join('').trim();
+};
+
+const emitKeyframes = (keyframes: KeyframesRule | undefined | null, output: string[]) => {
+  if (!keyframes) return;
+  output.push('@keyframes ', keyframes.id, ' {\n\tfrom {\n');
+  emitProperties(keyframes.from, output, '\t\t');
+  output.push('\t}\n\tto {\n');
+  emitProperties(keyframes.to, output, '\t\t');
+  output.push('\t}\n}\n');
+};
+
+const emitMedia = (media: MediaRule | undefined | null, output: string[]) => {
+  if (!media) return;
+  output.push('@media ', media.query, ' {\n');
+  for (const key of Reflect.ownKeys(media.rules)) {
+    emitNested(key, media.rules, output, '\t');
+  }
+  output.push('}\n');
+};
+
+const emitProperties = (properties: CssPropertiesRecord, output: string[], indent: string) => {
+  for (const [name, value] of Object.entries(properties)) {
+    if (!value) continue;
+    const cssName = toKebabCase(name).replaceAll('always-', '');
+    output.push(indent, cssName, ': ');
+    if (isPropertyValueArray(value)) {
+      for (let i = 0; i < value.length; i++) {
+        if (i > 0) {
+          output.push(' ');
+        }
+        output.push(value[i].css);
+      }
+    } else {
+      output.push(value.css);
+    }
+    output.push(';\n');
+  }
 };
 
 // flatten a block that can contain declarations e.g. 'color: red' or nested blocks
@@ -38,6 +90,9 @@ const flattenNestedBlock = (rule: SelectorRecord): StyleRule[] => {
     if (isPropertyValue(valueOrBlock) || isPropertyValueArray(valueOrBlock)) {
       // type checking should make it impossible to use a symbol as a key for property values
       if (typeof key === 'symbol') continue;
+      //
+      // TODO / NOTE - this logic duplicated in emitProperties, needs refactor
+      //
       const property = toKebabCase(key).replaceAll('always-', '');
       const value = isPropertyValueArray(valueOrBlock)
         ? valueOrBlock.map((v: PropertyValue) => v.css).join(' ')

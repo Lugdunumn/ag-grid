@@ -97,6 +97,7 @@ export type PropertyValue = {
 };
 
 export type CssPropertiesValue = PropertyValue | readonly PropertyValue[] | null | undefined;
+export type CssPropertiesRecord = Record<string, CssPropertiesValue>;
 
 export type CssProperties = Partial<
   {

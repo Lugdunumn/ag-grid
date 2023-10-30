@@ -44,11 +44,24 @@ export type PseudoElementSelector =
   | '&::placeholder';
 
 export type AtRules = {
-  '@keyframes'?: MediaValue;
+  '@keyframes'?: KeyframesRule;
+  '@font-face'?: CssProperties;
+  '@media'?: MediaRule;
 };
 
-export type MediaValue = {
-  animationName: string;
+export type KeyframesRule = {
+  id: string;
+  from: CssProperties;
+  to: CssProperties;
+};
+
+export type MediaRule = {
+  query: string;
+  rules: SelectorRules;
+};
+
+export type FontFaceRule = {
+  id: string;
   from: CssProperties;
   to: CssProperties;
 };

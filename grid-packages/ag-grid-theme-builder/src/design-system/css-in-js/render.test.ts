@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { literal, px, solid } from '.';
+import { bold, literal, px, solid } from '.';
 import { ColorExpression } from './color';
 import { joinSelectors, renderRules } from './render';
 import { untypedSelectors } from './selectors';
@@ -314,12 +314,14 @@ test(`Render @keyframes blocks`, () => {
   expect(
     renderRules({
       '@keyframes': {
-        animationName: 'foo-bar',
+        id: 'foo-bar',
         from: {
           color: red,
+          paddingAlwaysLeft: px(3),
         },
         to: {
           color: blue,
+          paddingAlwaysLeft: px(10),
         },
       },
     }),
@@ -327,31 +329,60 @@ test(`Render @keyframes blocks`, () => {
     "@keyframes foo-bar {
     	from {
     		color: red;
+    		padding-left: 3px;
     	}
     	to {
     		color: blue;
+    		padding-left: 10px;
     	}
     }"
   `);
 });
 
-// test(`Render @font-face blocks`, () => {
-//   expect(
-//     renderRules({
-//       '@font-face': {
-//         fontFamily: literal('monospace'),
-//         src: literal('url(./some-url)'),
-//       },
-//     }),
-//   ).toMatchInlineSnapshot(`
-//     "@font-face {
-//     	font-family: monospace;
-//     	src: url(./some-url);
-//     }"
-//   `);
-// });
+test(`Render @font-face blocks`, () => {
+  expect(
+    renderRules({
+      '@font-face': {
+        fontFamily: literal('monospace'),
+        src: literal('url(./some-url)'),
+        fontWeight: bold,
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    "@font-face {
+    	font-family: monospace;
+    	src: url(./some-url);
+    	font-weight: bold;
+    }"
+  `);
+});
 
-// TODO also @media and @font-face
+test(`Render @media blocks`, () => {
+  expect(
+    renderRules({
+      '@media': {
+        query: 'print',
+        rules: {
+          [a]: {
+            color: red,
+            [b]: {
+              color: blue,
+            },
+          },
+        },
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    "@media print {
+    	a {
+    		color: red;
+    	}
+    	a b {
+    		color: blue;
+    	}
+    }"
+  `);
+});
 
 const red = literal('red') as unknown as ColorExpression;
 const green = literal('green') as unknown as ColorExpression;
