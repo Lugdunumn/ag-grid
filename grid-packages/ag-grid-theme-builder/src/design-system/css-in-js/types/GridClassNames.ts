@@ -34,6 +34,22 @@ type TabsComponent<T extends string> =
   | `${T}Header`
   | `${T}Body`;
 
+type ColumnDropDirection = "" | "Horizontal" | "Vertical";
+type ColumnDropComponent =
+  | `columnDrop${ColumnDropDirection}`
+  | `columnDrop${ColumnDropDirection}TitleBar`
+  | `columnDrop${ColumnDropDirection}Icon`
+  | `columnDrop${ColumnDropDirection}List`
+  | `columnDrop${ColumnDropDirection}Cell`
+  | `columnDrop${ColumnDropDirection}Title`
+  | `columnDrop${ColumnDropDirection}EmptyMessage`
+  | `columnDrop${ColumnDropDirection}CellSeparator`;
+
+type MenuOptionPart = "Part" | "Text" | "Icon" | "Shortcut" | "PopupPointer" | "Disabled" | "Active"
+type MenuOptionComponent =
+  | `menuOption${MenuOptionPart}`
+  | `compactMenuOption${MenuOptionPart}`;
+
 export type AdvancedFilterClassNames =
   | 'advancedFilter'
   | 'advancedFilterApplyButton'
@@ -71,6 +87,8 @@ export type AdvancedFilterClassNames =
   | 'advancedFilterBuilderVirtualListItemHighlight'
   | 'advancedFilterHeader'
   | 'advancedFilterHeaderCell'
+  | 'ltr'
+  | 'rtl'
   | 'standardButton'
   | VirtualListComponent<'advancedFilterBuilder'>;
 
@@ -123,9 +141,11 @@ export type ChartsClassNames =
   | 'itemHighlightTop'
   | 'list'
   | 'listItemHovered'
+  | 'ltr'
   | 'notSelected'
   | 'recentColor'
   | 'recentColors'
+  | 'rtl'
   | 'scrollableContainer'
   | 'spectrumAlpha'
   | 'spectrumAlphaBackground'
@@ -228,6 +248,7 @@ export type CoreClassNames =
   | 'checkboxCell'
   | 'checkboxEdit'
   | 'checked'
+  | 'columnDrop'
   | 'columnHover'
   | 'columnMenuVisible'
   | 'columnMoving'
@@ -423,6 +444,7 @@ export type CoreClassNames =
   | 'loading'
   | 'loadingIcon'
   | 'loadingText'
+  | 'ltr'
   | 'menu'
   | 'menuList'
   | 'menuOption'
@@ -528,6 +550,7 @@ export type CoreClassNames =
   | 'rowPositionAbsolute'
   | 'rowPositionRelative'
   | 'rowSelected'
+  | 'rtl'
   | 'scrollbarActive'
   | 'scrollbarInvisible'
   | 'scrollbarScrolling'
@@ -588,7 +611,9 @@ export type CoreClassNames =
   | 'wrapper'
   | VirtualListComponent<'autocomplete'>
   | VirtualListComponent<'richSelect'>
-  | ListComponent<'select'>;
+  | ListComponent<'select'>
+  | ColumnDropComponent
+  | MenuOptionComponent;
 
 export type FilterToolPanelClassNames =
   | 'filter'

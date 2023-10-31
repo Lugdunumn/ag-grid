@@ -16,7 +16,6 @@ type Property =
   | 'backgroundPositionX'
   | 'backgroundPositionY'
   | 'backgroundRepeat'
-  | 'backgroundSize'
   | `border${Sides}`
   | `border${Sides}Style`
   | `border${Sides}Width`
@@ -73,12 +72,14 @@ type Property =
   | 'verticalAlign'
   | 'visibility'
   | 'whiteSpace'
+  | 'webkitOverflowScrolling'
+  | 'msOverflowStyle'
   | 'width'
   | 'wordBreak'
   | 'writingMode'
   | 'zIndex';
 
-type ShorthandProperty = 'background' | 'flex' | 'overflow' | 'transition';
+type ShorthandProperty = 'background' | 'flex' | 'overflow' | 'transition' | 'backgroundSize';
 
 type RtlSensitiveProperty =
   | 'border'

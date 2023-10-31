@@ -3,7 +3,14 @@ import { GridClassNames } from './GridClassNames';
 
 export type TopLevelRules = SelectorRules & AtRules;
 
-export type Selector = GridClassNames | PseudoClassSelector | PseudoElementSelector;
+export type Selector =
+  | GridClassNames
+  | `&${GridClassNames}`
+  | `&:not(${GridClassNames})`
+  | PseudoClassSelector
+  | PseudoElementSelector
+  | Element
+  | Special;
 export type SelectorValue = (CssProperties & SelectorRules) | null | undefined;
 
 export type SelectorRules = {
@@ -14,6 +21,10 @@ export type SelectorRules = {
 };
 
 export type SelectorRecord = Readonly<Record<string | symbol, SelectorValue | CssPropertiesValue>>;
+
+type Element = 'input' | 'textarea' | 'select' | 'button' | 'div' | 'span';
+
+type Special = '> *';
 
 type PseudoClass =
   | ':active'

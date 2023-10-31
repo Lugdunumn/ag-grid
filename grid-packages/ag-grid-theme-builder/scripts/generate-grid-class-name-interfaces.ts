@@ -10,8 +10,6 @@ const outputFile = './src/design-system/css-in-js/types/GridClassNames.ts';
 
 // class names that should never be emitted as types
 const ignoreClassNames = new Set([
-  'ag-ltr',
-  'ag-rtl',
   'ag-default',
   'ag-material',
   'ag-pastel',
@@ -30,6 +28,7 @@ const classNamesByOwner: Record<string, Set<string>> = {
     'ag-hidden',
     'ag-invisible',
     'ag-button',
+    'ag-column-drop',
     'ag-selected',
     'ag-no-transition',
     'ag-filter-condition-operator-or',
@@ -67,6 +66,8 @@ const additionalUnionEntries: Record<string, string[]> = {
     "VirtualListComponent<'autocomplete'>",
     "VirtualListComponent<'richSelect'>",
     "ListComponent<'select'>",
+    'ColumnDropComponent',
+    'MenuOptionComponent',
   ],
   AdvancedFilter: ["VirtualListComponent<'advancedFilterBuilder'>"],
   Charts: [
@@ -120,6 +121,22 @@ type TabsComponent<T extends string> =
   | T
   | \`\${T}Header\`
   | \`\${T}Body\`;
+
+type ColumnDropDirection = "" | "Horizontal" | "Vertical";
+type ColumnDropComponent =
+  | \`columnDrop\${ColumnDropDirection}\`
+  | \`columnDrop\${ColumnDropDirection}TitleBar\`
+  | \`columnDrop\${ColumnDropDirection}Icon\`
+  | \`columnDrop\${ColumnDropDirection}List\`
+  | \`columnDrop\${ColumnDropDirection}Cell\`
+  | \`columnDrop\${ColumnDropDirection}Title\`
+  | \`columnDrop\${ColumnDropDirection}EmptyMessage\`
+  | \`columnDrop\${ColumnDropDirection}CellSeparator\`;
+
+type MenuOptionPart = "Part" | "Text" | "Icon" | "Shortcut" | "PopupPointer" | "Disabled" | "Active"
+type MenuOptionComponent =
+  | \`menuOption\${MenuOptionPart}\`
+  | \`compactMenuOption\${MenuOptionPart}\`;
 
 `;
 
