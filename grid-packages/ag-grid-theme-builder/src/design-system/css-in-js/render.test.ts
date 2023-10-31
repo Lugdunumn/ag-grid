@@ -310,6 +310,24 @@ test(`Convert camelCase to .ag-kebab-case class names`, () => {
   `);
 });
 
+test(`Convert`, () => {
+  expect(
+    renderRules({
+      [a]: {
+        webkitOverflowScrolling: literal('x'),
+        msOverflowStyle: literal('y'),
+        mozAppearance: literal('z'),
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    "a {
+    	-webkit-overflow-scrolling: x;
+    	-ms-overflow-style: y;
+    	-moz-appearance: z;
+    }"
+  `);
+});
+
 test(`Render @keyframes blocks`, () => {
   expect(
     renderRules({

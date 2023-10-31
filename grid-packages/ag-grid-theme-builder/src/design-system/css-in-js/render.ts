@@ -63,7 +63,10 @@ const emitMedia = (media: MediaRule | undefined | null, output: string[]) => {
 const emitProperties = (properties: CssPropertiesRecord, output: string[], indent: string) => {
   for (const [name, value] of Object.entries(properties)) {
     if (!value) continue;
-    const cssName = toKebabCase(name).replaceAll('always-', '');
+    let cssName = toKebabCase(name).replaceAll('always-', '');
+    if (/^(moz|ms|webkit)-/.test(cssName)) {
+      cssName = '-' + cssName;
+    }
     output.push(indent, cssName, ': ');
     if (isPropertyValueArray(value)) {
       for (let i = 0; i < value.length; i++) {
@@ -93,7 +96,10 @@ const flattenNestedBlock = (rule: SelectorRecord): StyleRule[] => {
       //
       // TODO / NOTE - this logic duplicated in emitProperties, needs refactor
       //
-      const property = toKebabCase(key).replaceAll('always-', '');
+      let property = toKebabCase(key).replaceAll('always-', '');
+      if (/^(moz|ms|webkit)-/.test(property)) {
+        property = '-' + property;
+      }
       const value = isPropertyValueArray(valueOrBlock)
         ? valueOrBlock.map((v: PropertyValue) => v.css).join(' ')
         : valueOrBlock.css;

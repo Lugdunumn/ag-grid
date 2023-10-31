@@ -1770,6 +1770,22 @@ export default rules({
     cursor: literal('pointer'),
   },
 
+  // Default values for themes that do not use the mixins
+  // TODO restore this using calc and a variable
+  // @for $i from 1 to 10 {
+  //     .ag-column-select-indent-#{$i} {
+  //         @include ag.unthemed-rtl(( padding-left: $i * 20px ));
+  //     }
+
+  //     .ag-set-filter-indent-#{$i} {
+  //         @include ag.unthemed-rtl(( padding-left: $i * 20px ));
+  //     }
+
+  //     .ag-row-group-indent-#{$i} {
+  //         @include ag.unthemed-rtl(( padding-left: $i * 20px ));
+  //     }
+  // }
+
   ltr: {
     direction: literal('ltr'),
     [selectors(

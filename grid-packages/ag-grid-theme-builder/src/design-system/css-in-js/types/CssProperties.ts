@@ -74,6 +74,7 @@ type Property =
   | 'whiteSpace'
   | 'webkitOverflowScrolling'
   | 'msOverflowStyle'
+  | 'mozAppearance'
   | 'width'
   | 'wordBreak'
   | 'writingMode'
