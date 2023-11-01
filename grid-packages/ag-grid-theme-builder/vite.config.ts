@@ -9,4 +9,9 @@ export default defineConfig({
       plugins: [['@swc/plugin-emotion', {}]],
     }),
   ],
+  test: {
+    snapshotFormat: {
+      callToJSON: true,
+    },
+  },
 });
