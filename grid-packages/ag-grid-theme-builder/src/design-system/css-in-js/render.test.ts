@@ -1,7 +1,8 @@
 import { expect, test } from 'vitest';
 import { ColorExpression, literal, px, solid } from '.';
+import { fontFace, keyframes, media } from './at-rules';
 import { renderRules } from './render';
-import * as dsl from './selector-dsl';
+import * as dsl from './style-rule';
 
 // allow any property access for test purposes
 type MockDsl = dsl.SelectorDsl & { [key: string]: dsl.SelectorDsl };
@@ -153,82 +154,102 @@ test(`Convert`, () => {
   `);
 });
 
-// test(`Render @keyframes blocks`, () => {
-//   expect(
-//     renderRules({
-//       '@keyframes': {
-//         id: 'foo-bar',
-//         from: {
-//           color: red,
-//           paddingAlwaysLeft: px(3),
-//         },
-//         to: {
-//           color: blue,
-//           paddingAlwaysLeft: px(10),
-//         },
-//       },
-//     }),
-//   ).toMatchInlineSnapshot(`
-//     "@keyframes foo-bar {
-//     	from {
-//     		color: red;
-//     		padding-left: 3px;
-//     	}
-//     	to {
-//     		color: blue;
-//     		padding-left: 10px;
-//     	}
-//     }"
-//   `);
-// });
+test(`Render @keyframes blocks`, () => {
+  const rule = keyframes({
+    id: 'my-id',
+    from: {
+      color: red,
+      paddingAlwaysLeft: px(1),
+    },
+    to: {
+      color: green,
+      paddingAlwaysLeft: px(2),
+    },
+  });
+  expect(renderRules([rule])).toMatchInlineSnapshot(`
+    "@keyframes my-id {
+    	from {
+    		color: red;
+    		padding-left: 1px;
+    	}
+    	to {
+    		color: green;
+    		padding-left: 2px;
+    	}
+    }
+    "
+  `);
+});
 
-// test(`Render @font-face blocks`, () => {
-//   expect(
-//     renderRules({
-//       '@font-face': {
-//         fontFamily: literal('monospace'),
-//         src: literal('url(./some-url)'),
-//         fontWeight: bold,
-//       },
-//     }),
-//   ).toMatchInlineSnapshot(`
-//     "@font-face {
-//     	font-family: monospace;
-//     	src: url(./some-url);
-//     	font-weight: bold;
-//     }"
-//   `);
-// });
+test(`@keyframes block throws error with RTL styles`, () => {
+  const rule = keyframes({
+    id: 'my-id',
+    from: {
+      color: red,
+      paddingLeading: px(1),
+    },
+    to: {
+      color: green,
+      paddingTrailing: px(2),
+    },
+  });
+  expect(() => renderRules([rule])).toThrowErrorMatchingInlineSnapshot(
+    '"RTL styles (paddingLeading: 1px) not allowed inside @keyframes my-id"',
+  );
+});
 
-// test(`Render @media blocks`, () => {
-//   expect(
-//     renderRules({
-//       '@media': {
-//         query: 'print',
-//         rules: {
-//           [a]: {
-//             color: red,
-//             [b]: {
-//               color: blue,
-//             },
-//           },
-//         },
-//       },
-//     }),
-//   ).toMatchInlineSnapshot(`
-//     "@media print {
-//     	a {
-//     		color: red;
-//     	}
-//     	a b {
-//     		color: blue;
-//     	}
-//     }"
-//   `);
-// });
+test(`Render @font-face blocks`, () => {
+  const rule = fontFace({
+    fontFamily: literal('monospace'),
+    src: literal('url(./some-url)'),
+    fontWeight: literal('bold'),
+  });
+  expect(renderRules([rule])).toMatchInlineSnapshot(`
+    "@font-face {
+    	font-family: monospace;
+    	src: url(./some-url);
+    	font-weight: bold;
+    }
+    "
+  `);
+});
+
+test(`Render @media blocks`, () => {
+  const rule = media({
+    query: 'print',
+    rules: [
+      _.one(
+        {
+          color: red,
+          paddingAlwaysLeft: px(1),
+        },
+        _.two({
+          color: blue,
+          paddingLeading: px(2),
+        }),
+      ),
+    ],
+  });
+  expect(renderRules([rule])).toMatchInlineSnapshot(`
+    "@media print {
+    	.ag-one {
+    		color: red;
+    		padding-left: 1px;
+    	}
+    	.ag-one .ag-two {
+    		color: blue;
+    	}
+    	.ag-ltr .ag-one .ag-two {
+    		padding-left: 2px;
+    	}
+    	.ag-rtl .ag-one .ag-two {
+    		padding-right: 2px;
+    	}
+    }
+    "
+  `);
+});
 
 const red = literal('red') as unknown as ColorExpression;
 const green = literal('green') as unknown as ColorExpression;
 const blue = literal('blue') as unknown as ColorExpression;
-const purple = literal('purple') as unknown as ColorExpression;
-const pink = literal('pink') as unknown as ColorExpression;

@@ -70,9 +70,3 @@ export type MediaRule = {
   query: string;
   rules: SelectorRules;
 };
-
-export type FontFaceRule = {
-  id: string;
-  from: CssProperties;
-  to: CssProperties;
-};

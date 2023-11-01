@@ -7,7 +7,7 @@ export * from './dimension';
 export * from './expression-constants';
 export * from './literal';
 export * from './mix';
-export { $, _ } from './selector-dsl';
+export { $, _ } from './style-rule';
 export * from './v';
 
 export { inject } from './inject';

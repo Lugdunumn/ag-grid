@@ -1,3 +1,4 @@
+import { StyleRule } from './render';
 import { CssProperties } from './types/CssProperties';
 import { GridClassNames } from './types/GridClassNames';
 import { toKebabCase } from './utils';
@@ -7,31 +8,9 @@ export type Selector = {
   tightJoin: boolean;
 };
 
-export type StyleRule = Selector & {
-  properties: CssProperties;
+export type JoiningStyleRule = StyleRule & {
+  tightJoin: boolean;
 };
-
-const selectorToRule = (selector: Selector, properties: CssProperties): StyleRule => ({
-  selectors: selector.selectors,
-  tightJoin: selector.tightJoin,
-  properties,
-});
-
-const flattenStyleRules = (parent: StyleRule, children: StyleRule[][]): StyleRule[] => [
-  parent,
-  ...children
-    .flatMap((c) => c)
-    .map((child): StyleRule => {
-      const separator = child.tightJoin ? '' : ' ';
-      return {
-        properties: child.properties,
-        tightJoin: parent.tightJoin,
-        selectors: parent.selectors.flatMap((parentSelector) =>
-          child.selectors.map((childSelector) => parentSelector + separator + childSelector),
-        ),
-      };
-    }),
-];
 
 export type SelectorDsl = Selector &
   SelectorDslCall &
@@ -40,7 +19,7 @@ export type SelectorDsl = Selector &
   };
 
 export type SelectorDslCall = {
-  (properties: CssProperties, ...nested: StyleRule[][]): StyleRule[];
+  (properties: CssProperties, ...nested: JoiningStyleRule[][]): JoiningStyleRule[];
 };
 
 export type SelectorDslMethods = {
@@ -69,7 +48,7 @@ const pseudoClasses = [
 pseudoClasses.forEach((prop) => propertyToSelector.set(prop, ':' + toKebabCase(prop)));
 type PseudoClass = (typeof pseudoClasses)[number];
 
-const makeSelectorDsl = (tightJoin: boolean): SelectorDsl => {
+const selectorDsl = (tightJoin: boolean): SelectorDsl => {
   const selector: Selector & SelectorDslMethods = {
     tightJoin,
     selectors: [''],
@@ -91,7 +70,18 @@ const makeSelectorDsl = (tightJoin: boolean): SelectorDsl => {
     return dsl;
   };
 
-  const dsl: SelectorDsl = new Proxy((() => null) as any, {
+  const call: SelectorDslCall = (properties, ...nested) =>
+    flattenStyleRules(
+      {
+        type: 'style',
+        selectors: selector.selectors,
+        tightJoin,
+        properties,
+      },
+      nested,
+    );
+
+  const dsl: SelectorDsl = new Proxy(call as any, {
     get: (_, prop) => {
       if (typeof prop === 'symbol' || prop in selector) return (selector as any)[prop];
       const predefined = propertyToSelector.get(prop);
@@ -103,20 +93,35 @@ const makeSelectorDsl = (tightJoin: boolean): SelectorDsl => {
       }
       return append('.ag-' + toKebabCase(prop));
     },
-    apply: (_, __, [properties, ...nested]): StyleRule[] => {
-      return flattenStyleRules(selectorToRule(selector, properties), nested);
-    },
   });
 
   return dsl;
 };
 
-const makeSelectorDslFactory = (tightJoin: boolean) =>
+const selectorDslFactory = (tightJoin: boolean) =>
   new Proxy<SelectorDsl>({} as any, {
     get: (_, prop) => {
-      return makeSelectorDsl(tightJoin)[prop as keyof SelectorDsl];
+      return selectorDsl(tightJoin)[prop as keyof SelectorDsl];
     },
   });
 
-export const _ = makeSelectorDslFactory(false);
-export const $ = makeSelectorDslFactory(true);
+export const _ = selectorDslFactory(false);
+export const $ = selectorDslFactory(true);
+
+const flattenStyleRules = (
+  parent: JoiningStyleRule,
+  children: JoiningStyleRule[][],
+): JoiningStyleRule[] => [
+  parent,
+  ...children.flat().map((child): JoiningStyleRule => {
+    const separator = child.tightJoin ? '' : ' ';
+    return {
+      type: 'style',
+      properties: child.properties,
+      tightJoin: parent.tightJoin,
+      selectors: parent.selectors.flatMap((parentSelector) =>
+        child.selectors.map((childSelector) => parentSelector + separator + childSelector),
+      ),
+    };
+  }),
+];

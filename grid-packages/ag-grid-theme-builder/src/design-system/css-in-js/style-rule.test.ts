@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { _ } from './selector-dsl';
+import { _ } from './style-rule';
 
 test(`Build selectors`, () => {
   expect(_.input.toString()).toBe('input');
