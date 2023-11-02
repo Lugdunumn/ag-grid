@@ -12,11 +12,9 @@ export type JoiningStyleRule = StyleRule & {
   tightJoin: boolean;
 };
 
-export type SelectorDsl = Selector &
-  SelectorDslCall &
-  SelectorDslMethods & {
-    [K in KnownElement | PseudoClass | GridClassNames]: SelectorDsl;
-  };
+export type SelectorDsl = Selector & SelectorDslCall & SelectorDslMethods & SelectorDslProperties;
+
+export type SelectorDslFactory = Selector & SelectorDslMethods & SelectorDslProperties;
 
 export type SelectorDslCall = {
   (properties: CssProperties, ...nested: JoiningStyleRule[][]): JoiningStyleRule[];
@@ -24,8 +22,13 @@ export type SelectorDslCall = {
 
 export type SelectorDslMethods = {
   not(other: Selector): SelectorDsl;
+  or(other: Selector): SelectorDsl;
   nthChild(number: number): SelectorDsl;
   toString(): string;
+};
+
+type SelectorDslProperties = {
+  [K in KnownElement | PseudoClass | GridClassNames]: SelectorDsl;
 };
 
 const propertyToSelector = new Map<string, string>();
@@ -48,18 +51,24 @@ const pseudoClasses = [
 pseudoClasses.forEach((prop) => propertyToSelector.set(prop, ':' + toKebabCase(prop)));
 type PseudoClass = (typeof pseudoClasses)[number];
 
-const selectorDsl = (tightJoin: boolean): SelectorDsl => {
+const selectorDsl = (tightJoin: boolean, initialSelectors = ['']): SelectorDsl => {
   const selector: Selector & SelectorDslMethods = {
     tightJoin,
-    selectors: [''],
+    selectors: initialSelectors,
     not(other: Selector) {
-      return append(other.selectors.map((s) => `:not(${s})`).join());
+      return append(other.selectors.map((s) => `:not(${s})`).join(''));
+    },
+    or(other: Selector) {
+      for (const otherSelector of other.selectors) {
+        this.selectors.push(otherSelector);
+      }
+      return dsl;
     },
     nthChild(number: number) {
       return append(`:nth-child(${number})`);
     },
     toString() {
-      return this.selectors.join();
+      return this.selectors.join(', ');
     },
   };
 
@@ -98,15 +107,19 @@ const selectorDsl = (tightJoin: boolean): SelectorDsl => {
   return dsl;
 };
 
-const selectorDslFactory = (tightJoin: boolean) =>
-  new Proxy<SelectorDsl>({} as any, {
+const selectorDslFactory = (tightJoin: boolean): SelectorDslFactory => {
+  return new Proxy({} as any as any, {
     get: (_, prop) => {
       return selectorDsl(tightJoin)[prop as keyof SelectorDsl];
     },
   });
+};
 
 export const _ = selectorDslFactory(false);
 export const $ = selectorDslFactory(true);
+
+export const any = (...selectors: Selector[]) =>
+  selectorDsl(false, selectors.map((s) => s.selectors).flat());
 
 const flattenStyleRules = (
   parent: JoiningStyleRule,

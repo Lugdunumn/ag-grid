@@ -90,11 +90,6 @@ const emitAtRule = (output: string[], { rule, styles, properties, allowRtl }: At
   }
 };
 
-const renderPropertyName = (jsName: string) => {
-  const cssName = toKebabCase(jsName).replace('always-', '');
-  return /^(moz|ms|webkit)-/.test(cssName) ? '-' + cssName : cssName;
-};
-
 const emitSelectorsAndProperties = (
   output: string[],
   prefix: string,
@@ -117,9 +112,14 @@ const emitSelectorsAndProperties = (
   output.push(indent, '}\n');
 };
 
+const renderPropertyName = (jsName: string) => {
+  const cssName = toKebabCase(jsName).replace('always-', '');
+  return /^(moz|ms|webkit)-/.test(cssName) ? '-' + cssName : cssName;
+};
+
 const renderPropertyValue = (value: unknown): string => {
   if (value == null) return '';
-  if (typeof value === 'string') return value;
+  if (typeof value === 'string') return value || '""';
   if (typeof value === 'number') return String(value);
   if (Array.isArray(value)) {
     return value.map(renderPropertyValue).join(' ');
