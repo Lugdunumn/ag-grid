@@ -118,7 +118,7 @@ const selectorDslFactory = (tightJoin: boolean): SelectorDslFactory => {
 export const _ = selectorDslFactory(false);
 export const $ = selectorDslFactory(true);
 
-export const any = (...selectors: Selector[]) =>
+export const any = (...selectors: ReadonlyArray<Selector>) =>
   selectorDsl(false, selectors.map((s) => s.selectors).flat());
 
 const flattenStyleRules = (
