@@ -64,7 +64,7 @@
     }
 
     .ag-group-title-bar-icon {
-        @include ag.theme-rtl((margin-right: var(--ag-grid-size)))
+        @include ag.theme-rtl((margin-right: var(--ag-grid-size)));
     }
 
     .ag-charts-format-top-level-group-toolbar {
@@ -229,7 +229,7 @@
             border-left: dashed 1px,
             border-left-color: var(--ag-border-color),
             margin-left: calc(var(--ag-grid-size) * 2)
-        ))
+        ));
     }
 
     .ag-set-filter-list {
