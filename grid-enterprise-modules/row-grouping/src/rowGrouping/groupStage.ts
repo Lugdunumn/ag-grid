@@ -508,6 +508,33 @@ export class GroupStage extends BeanStub implements IRowNodeStage {
     }
 
     private insertNodes(newRowNodes: RowNode[], details: GroupingDetails, isMove: boolean): void {
+        if (details.usingTreeData) {
+            let highest = 1;
+            const rowNodesAndPaths = newRowNodes.map<[RowNode, GroupInfo[]]>(node => {
+                const path: GroupInfo[] = this.getGroupInfo(node, details);
+                highest = Math.max(highest, path.length);
+                return [node, path];
+            });
+
+            // a performance improvement for tree data, by starting at the shortest paths,
+            // less redundant groups need created and destroyed
+            let checked = 1;
+            do {
+                rowNodesAndPaths.forEach(([rowNode, path]) => {
+                    highest = Math.max(highest, path.length);
+                    
+                    if (path.length !== checked) return;
+        
+                    this.insertOneNode(rowNode, details, isMove, undefined, path);
+                    if (details.changedPath.isActive()) {
+                        details.changedPath.addParentNode(rowNode.parent);
+                    }
+                });
+                checked += 1;
+            } while (checked < highest);
+            return;
+        }
+
         newRowNodes.forEach(rowNode => {
             this.insertOneNode(rowNode, details, isMove);
             if (details.changedPath.isActive()) {
@@ -516,9 +543,9 @@ export class GroupStage extends BeanStub implements IRowNodeStage {
         });
     }
 
-    private insertOneNode(childNode: RowNode, details: GroupingDetails, isMove: boolean, batchRemover?: BatchRemover): void {
+    private insertOneNode(childNode: RowNode, details: GroupingDetails, isMove: boolean, batchRemover?: BatchRemover, providedPath?: GroupInfo[]): void {
 
-        const path: GroupInfo[] = this.getGroupInfo(childNode, details);
+        const path: GroupInfo[] = providedPath ?? this.getGroupInfo(childNode, details);
 
         const parentGroup = this.findParentForNode(childNode, path, details, batchRemover);
         if (!parentGroup.group) {
